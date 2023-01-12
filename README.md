@@ -17,3 +17,7 @@ Update your .env files and run `yarn dev` to start you local server
 Any tweets that include at least one of the words on this list will be flagged and shown to the user.
 
 https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words
+
+## Authorizing with Twitter
+
+https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens
