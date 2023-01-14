@@ -5,8 +5,9 @@ export async function GET(event: APIEvent) {
     try {
         const response = await authClient.revokeAccessToken();
         setAccessToken()
-        return json({ response })
+        
+        return json({ revokeResponse: response })
     } catch (error) {
-        console.log(error);
+        return json({ revokeError: error })
     }
 }

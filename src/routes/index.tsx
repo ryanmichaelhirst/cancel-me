@@ -40,9 +40,8 @@ export default function Index() {
 
   const onGetMyTweets: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     const resp = await (await fetch('/api/current-user/tweets')).json()
-    console.log(resp)
-
-    setTweets(resp.result.data)
+    
+    setTweets(resp.data)
   }
 
   return (

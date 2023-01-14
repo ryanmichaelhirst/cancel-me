@@ -11,17 +11,18 @@ export async function GET({ params, request }: APIEvent) {
 
     const searchParams = querystring.parse(query)
 
-    console.log('callback', { params, query, parsedUrl })
-
     try {
-        const { code, state } = searchParams
+        const { state } = searchParams
         if (state !== STATE) return json({ error: 'State does not match' })
-        const result = await authClient.requestAccessToken(code as string);
-        setAccessToken(result)
-        console.log({ result })
-        
+
+        const code = searchParams.code as (string | undefined)
+        if (!code) return json({ error: 'Code does not exist' })
+
+        const result = await authClient.requestAccessToken(code);
+        setAccessToken(result.token)
+
         return redirect('/')
       } catch (error) {
-        console.log(error);
+        return json({ callbackError: error })
       }
 }
