@@ -19,7 +19,6 @@ export default function Index() {
 
   const onSubmit: JSX.EventHandler<HTMLFormElement, Event> = async (e) => {
     e.preventDefault()
-    // if (!usernameValue) return
 
     const form = document.getElementById('username-search-form') as HTMLFormElement | null;
     if (!form) return
@@ -33,6 +32,18 @@ export default function Index() {
     setTweets(result)
   }
 
+  const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
+    const resp = await (await fetch(`/api/oauth/login`)).json()
+
+    window.open(resp.authUrl, '_blank')
+  }
+
+  const onGetMyTweets: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
+    const resp = await (await fetch('/api/current-user/tweets')).json()
+    
+    setTweets(resp.data)
+  }
+
   return (
     <main>
       <Title>Cancel Me</Title>
@@ -40,6 +51,8 @@ export default function Index() {
         <h1 class='text-5xl mb-6'>Welcome</h1>
         <p class='text-3xl mb-4'>It's time to cancel yourself!</p>
         <p class='text-lg mb-4'>Enter your Twitter username below to view every stupid thing you've blasted out to The Internet</p>
+        <button onClick={onClick} class='text-slate-800 border border-blue-200 rounded py-1 px-2 mb-4'>Login with twitter</button>
+        <button onClick={onGetMyTweets} class='border border-blue-200'>Get my tweets</button>
         <form 
           onSubmit={onSubmit} 
           id='username-search-form' 
@@ -58,7 +71,7 @@ export default function Index() {
           </div>
         </form>
       </div>
-      <TweetList tweets={tweets()} />
+      {tweets() ?  <TweetList tweets={tweets()} /> : <div>Login or search a name to see your cringy posts</div>}
     </main>
   );
 }
