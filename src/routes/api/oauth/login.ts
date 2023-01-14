@@ -1,6 +1,5 @@
 import { authClient, STATE } from "~/lib/twitter-client"
 import { APIEvent, json } from "solid-start/api";
-import { redirect } from "solid-start/server";
 
 // step 1: login with twitter
 export async function GET({ params }: APIEvent) {
@@ -14,7 +13,6 @@ export async function GET({ params }: APIEvent) {
 
         return json({ authUrl })
     } catch (error) {
-        console.log(error)
         return json({ error })
     }
 }

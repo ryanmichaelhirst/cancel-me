@@ -4,16 +4,14 @@ import url from 'url'
 import querystring from 'querystring'
 
 // step 2: request oauth access token
-export async function GET({ params, request }: APIEvent) {
-    console.log('hit callback')
-    
+export async function GET({ params, request }: APIEvent) {    
     const parsedUrl = url.parse(request.url)
     const query = parsedUrl.query
-    console.log({ requestUrl: request.url, parsedUrl, query })
     if (!query) return json({ error: 'no query to parse' })
 
     const searchParams = querystring.parse(query)
-    console.log({ searchParams})
+
+    console.log('callback', { params, query, parsedUrl })
 
     try {
         const { code, state } = searchParams
