@@ -18,4 +18,4 @@ export const twitterClient = new Client(authClient);
 type Token = Awaited<ReturnType<auth.OAuth2User['requestAccessToken']>>
 let accessToken: Token | undefined
 
-export const setAccessToken = (token: Token) => accessToken = token
+export const setAccessToken = (token?: Token) => accessToken = token
