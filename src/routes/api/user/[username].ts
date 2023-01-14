@@ -1,13 +1,14 @@
-import { twitterClient } from "~/routes/api/user/[username]/tweets"
-import { APIEvent, json } from "solid-start/api";
+import { APIEvent, json } from 'solid-start/api'
+import { twitterClient } from '~/routes/api/user/[username]/tweets'
 
 export async function GET({ params }: APIEvent) {
-    const { username } = params
+  const { username } = params
 
-    try {
-        const user = await twitterClient.users.findUserByUsername(username)
-        return json({ user })
-    } catch (error) {
-        return json({ user: undefined, error })
-    }
+  try {
+    const user = await twitterClient.users.findUserByUsername(username)
+
+    return json({ user })
+  } catch (error) {
+    return json({ user: undefined, error })
+  }
 }
