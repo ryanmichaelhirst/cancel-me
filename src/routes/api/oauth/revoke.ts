@@ -1,5 +1,5 @@
 import { APIEvent, json } from 'solid-start/api'
-import { authClient, setAccessToken } from '~/lib/twitter-client'
+import { authClient, setAccessToken } from '~/lib/twitter-user-client'
 
 export async function GET(event: APIEvent) {
   try {

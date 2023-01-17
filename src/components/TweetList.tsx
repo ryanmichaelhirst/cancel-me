@@ -1,24 +1,63 @@
+import { format } from 'date-fns'
+import { Icon } from 'solid-heroicons'
+import { trash } from 'solid-heroicons/outline'
+import type { JSX } from 'solid-js'
 import { For } from 'solid-js'
 
 export interface Tweet {
   edit_history_tweet_ids: string[]
   id: string
   text: string
+  created_at: string
 }
 
-const Tweet = (props: { tweet: Tweet; idx: number }) => (
-  <div id={props.tweet.id} class='mb-4 border-b-2 border-blue-200 pb-2'>
-    <div class='flex items-center'>
-      <p class='mr-4 font-bold text-slate-800'>{props.idx}</p>
-      <p class='text-lg text-slate-800'>{props.tweet.text}</p>
-    </div>
-  </div>
+const Tweet = (props: { tweet: Tweet; idx: number; onDelete: any }) => (
+  <tr id={props.tweet.id} class='mb-4 border-b-2 border-blue-200 pb-2 text-slate-800'>
+    <td class='w-10'>{props.idx}</td>
+    <td class=''>{props.tweet.text}</td>
+    <td class=''>{format(new Date(props.tweet.created_at), 'MMM dd, yyyy, HH:mm aa')}</td>
+    <td>
+      <button
+        id={props.tweet.id}
+        title='Delete'
+        onClick={props.onDelete}
+        class='text-blue-500 hover:text-blue-800'
+      >
+        <Icon path={trash} class='h-6 w-6 text-inherit' />
+      </button>
+    </td>
+  </tr>
 )
 
 export const TweetList = (props: { tweets?: Tweet[] }) => {
+  const onDelete: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (event) => {
+    const id = event.currentTarget.id
+
+    // TODO: implement delete message modal, success / fail
+    const resp = await (
+      await fetch(`/api/current-user/tweet/${id}`, {
+        method: 'DELETE',
+      })
+    ).json()
+  }
+
   return (
-    <div class='mt-10 rounded border border-solid border-blue-200 p-4'>
-      <For each={props.tweets}>{(tweet, idx) => <Tweet tweet={tweet} idx={idx()} />}</For>
-    </div>
+    <section class='mt-10 rounded border border-solid border-blue-200 p-4'>
+      <table>
+        <thead>
+          <tr class='text-left text-slate-800'>
+            <th class='w-10'>#</th>
+            <th class=''>Tweet</th>
+            <th class=''>Date</th>
+            <th class='w-12'></th>
+          </tr>
+        </thead>
+        <tbody>
+          <For each={props.tweets}>
+            {(tweet, idx) => <Tweet tweet={tweet} idx={idx()} onDelete={onDelete} />}
+          </For>
+        </tbody>
+      </table>
+    </section>
   )
 }

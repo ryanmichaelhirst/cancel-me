@@ -1,5 +1,5 @@
 import { APIEvent, json } from 'solid-start/api'
-import { authClient, STATE } from '~/lib/twitter-client'
+import { authClient, STATE } from '~/lib/twitter-user-client'
 
 // step 1: login with twitter
 export async function GET(event: APIEvent) {

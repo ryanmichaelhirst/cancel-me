@@ -1,5 +1,5 @@
 import { APIEvent, json } from 'solid-start/api'
-import { twitterClient } from '~/routes/api/user/[username]/tweets'
+import { twitterClient } from '~/lib/twitter-client'
 
 export async function GET({ params }: APIEvent) {
   const { username } = params
