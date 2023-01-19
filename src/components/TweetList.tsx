@@ -5,8 +5,27 @@ import type { JSX } from 'solid-js'
 import { For } from 'solid-js'
 import type { Tweet } from '~/types'
 
-const Tweet = (props: { tweet: Tweet; idx: number; onDelete: any }) => (
+const Tweet = (props: {
+  tweet: Tweet
+  idx: number
+  onDelete: any
+  onCheckbox: any
+  checked: boolean
+}) => (
   <tr id={props.tweet.id} class='mb-4 border-b-2 border-blue-200 pb-2 text-slate-800'>
+    <td>
+      <input
+        type='checkbox'
+        id='selected'
+        name='selected'
+        checked={props.checked}
+        value={props.tweet.id}
+        onChange={props.onCheckbox}
+      />
+      <label for='selected' hidden>
+        Selected
+      </label>
+    </td>
     <td class='w-10'>{props.idx}</td>
     <td class=''>{props.tweet.text}</td>
     <td class=''>{format(new Date(props.tweet.created_at ?? ''), 'MMM dd, yyyy, HH:mm aa')}</td>
@@ -31,7 +50,11 @@ const Tweet = (props: { tweet: Tweet; idx: number; onDelete: any }) => (
   </tr>
 )
 
-export const TweetList = (props: { tweets?: Tweet[] }) => {
+export const TweetList = (props: {
+  tweets?: Tweet[]
+  selectedTweetIds: string[]
+  onCheckbox: any
+}) => {
   const onDelete: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (event) => {
     const id = event.currentTarget.id
 
@@ -48,6 +71,7 @@ export const TweetList = (props: { tweets?: Tweet[] }) => {
       <table>
         <thead>
           <tr class='text-left text-slate-800'>
+            <th></th>
             <th class='w-10'>#</th>
             <th class=''>Tweet</th>
             <th class=''>Date</th>
@@ -56,7 +80,15 @@ export const TweetList = (props: { tweets?: Tweet[] }) => {
         </thead>
         <tbody>
           <For each={props.tweets}>
-            {(tweet, idx) => <Tweet tweet={tweet} idx={idx()} onDelete={onDelete} />}
+            {(tweet, idx) => (
+              <Tweet
+                tweet={tweet}
+                idx={idx()}
+                onDelete={onDelete}
+                checked={props.selectedTweetIds.includes(tweet.id)}
+                onCheckbox={props.onCheckbox}
+              />
+            )}
           </For>
         </tbody>
       </table>

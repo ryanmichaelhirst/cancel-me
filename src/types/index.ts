@@ -1,4 +1,5 @@
 import {
+  deleteTweetById,
   TwitterPaginatedResponse,
   TwitterResponse,
   usersIdTweets,
@@ -7,3 +8,7 @@ import {
 export type UserUsernameTweetsResponse = TwitterPaginatedResponse<TwitterResponse<usersIdTweets>>
 
 export type Tweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
+
+export type DeleteTweetResponse = TwitterResponse<deleteTweetById>
+
+export type UserIdTweetsResponse = TwitterResponse<usersIdTweets>
