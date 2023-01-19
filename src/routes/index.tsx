@@ -7,7 +7,7 @@ export default function Index() {
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     const resp = await (await fetch(`/api/oauth/login`)).json()
 
-    window.open(resp.authUrl, '_blank')
+    window.open(resp.authUrl, '_self')
   }
 
   return (
