@@ -1,9 +1,8 @@
 import type { JSX } from 'solid-js'
 import { createSignal } from 'solid-js'
 import { useParams } from 'solid-start'
-import type { Tweet } from '~/components/TweetList'
 import { TweetList } from '~/components/TweetList'
-import type { UserUsernameTweetsResponse } from '~/types'
+import type { Tweet, UserUsernameTweetsResponse } from '~/types'
 
 export default function User() {
   const params = useParams()

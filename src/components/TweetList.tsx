@@ -3,19 +3,13 @@ import { Icon } from 'solid-heroicons'
 import { link, trash } from 'solid-heroicons/outline'
 import type { JSX } from 'solid-js'
 import { For } from 'solid-js'
-
-export interface Tweet {
-  edit_history_tweet_ids: string[]
-  id: string
-  text: string
-  created_at: string
-}
+import type { Tweet } from '~/types'
 
 const Tweet = (props: { tweet: Tweet; idx: number; onDelete: any }) => (
   <tr id={props.tweet.id} class='mb-4 border-b-2 border-blue-200 pb-2 text-slate-800'>
     <td class='w-10'>{props.idx}</td>
     <td class=''>{props.tweet.text}</td>
-    <td class=''>{format(new Date(props.tweet.created_at), 'MMM dd, yyyy, HH:mm aa')}</td>
+    <td class=''>{format(new Date(props.tweet.created_at ?? ''), 'MMM dd, yyyy, HH:mm aa')}</td>
     <td class='flex space-x-3'>
       <button
         id={props.tweet.id}
