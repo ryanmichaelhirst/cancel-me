@@ -19,6 +19,7 @@ export const Navbar = (props: any) => {
   return (
     <nav class='mt-6 flex items-center justify-end space-x-4'>
       <A href='/'>Home</A>
+      <A href='/donate'>Donate</A>
       <button onClick={onClick} class='rounded bg-blue-500 py-1 px-2 text-white hover:bg-blue-600'>
         Login
       </button>

@@ -12,8 +12,8 @@ export default function Index() {
 
   return (
     <main class='min-h-full'>
-      <Title>Cancel Me</Title>
-      <h1 class='mt-10 text-5xl text-blue-800'>Cancel Me</h1>
+      <Title>Home - Cancel Me</Title>
+      <h1 class='mt-10 text-5xl text-blue-800'>Time to cancel yourself</h1>
 
       <section class='mt-6'>
         <p class='mb-10 text-lg text-slate-900'>
