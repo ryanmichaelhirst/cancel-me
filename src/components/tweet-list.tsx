@@ -54,6 +54,8 @@ export const TweetList = (props: {
   tweets?: Tweet[]
   selectedTweetIds: string[]
   onCheckbox: any
+  onSelectAll: () => void
+  isSelectAll: boolean
 }) => {
   const onDelete: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (event) => {
     const id = event.currentTarget.id
@@ -79,6 +81,20 @@ export const TweetList = (props: {
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td>
+              <input
+                type='checkbox'
+                id='select-all'
+                name='select-all'
+                checked={props.isSelectAll}
+                onChange={props.onSelectAll}
+              />
+              <label for='selected' hidden>
+                Select all
+              </label>
+            </td>
+          </tr>
           <For each={props.tweets}>
             {(tweet, idx) => (
               <Tweet

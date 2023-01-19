@@ -1,5 +1,4 @@
-import type { JSX } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { createSignal, JSX } from 'solid-js'
 import { useParams } from 'solid-start'
 import { TweetList } from '~/components/tweet-list'
 import { solidClient } from '~/lib/solid-client'
@@ -9,6 +8,7 @@ export default function User() {
   const params = useParams()
   const [tweets, setTweets] = createSignal<Tweet[]>()
   const [selectedTweetIds, setSelectedTweetIds] = createSignal<string[]>([])
+  const [isSelectAll, setIsSelectAll] = createSignal<boolean>(false)
 
   const onCheckbox: JSX.EventHandler<HTMLInputElement, MouseEvent> = async (e) => {
     const checked = e.currentTarget.checked
@@ -16,6 +16,19 @@ export default function User() {
 
     if (checked) setSelectedTweetIds((prev) => prev.concat([value]))
     else setSelectedTweetIds((prev) => prev.filter((tweetId) => tweetId !== value))
+  }
+
+  const onSelectAll = () => {
+    const currentTweets = tweets()
+    if (!currentTweets) return
+
+    if (isSelectAll()) {
+      setSelectedTweetIds([])
+      setIsSelectAll(false)
+    } else {
+      setSelectedTweetIds(currentTweets.map((tweet) => tweet.id))
+      setIsSelectAll(true)
+    }
   }
 
   const onGetMyTweets: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
@@ -92,6 +105,8 @@ export default function User() {
             tweets={tweets()}
             selectedTweetIds={selectedTweetIds()}
             onCheckbox={onCheckbox}
+            onSelectAll={onSelectAll}
+            isSelectAll={isSelectAll()}
           />
         ) : (
           <div></div>
