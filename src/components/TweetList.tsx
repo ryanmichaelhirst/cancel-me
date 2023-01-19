@@ -32,14 +32,14 @@ const Tweet = (props: {
     <td class='flex space-x-3'>
       <button
         id={props.tweet.id}
-        title='Delete'
+        title='Delete tweet'
         onClick={props.onDelete}
         class='text-blue-500 hover:text-blue-800'
       >
         <Icon path={trash} class='h-6 w-6 text-inherit' />
       </button>
       <button
-        title='Go to tweet'
+        title='View tweet'
         // https://developer.twitter.com/en/blog/community/2020/getting-to-the-canonical-url-for-a-tweet
         onClick={() => window.open(`https://twitter.com/twitter/status/${props.tweet.id}`)}
         class='text-blue-500 hover:text-blue-800'
