@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createSignal } from 'solid-js'
 import { useParams } from 'solid-start'
-import { TweetList } from '~/components/TweetList'
+import { TweetList } from '~/components/tweet-list'
 import { solidClient } from '~/lib/solid-client'
 import type { Tweet } from '~/types'
 
