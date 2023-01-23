@@ -6,12 +6,21 @@ export async function DELETE(event: APIEvent) {
 
   try {
     const resp = await twitterUserClient.client.tweets.deleteTweetById(params.id)
-    console.log(resp)
 
     return json(resp)
-  } catch (error) {
-    console.log(error)
+  } catch (err) {
+    const error = err as {
+      error: {
+        title: string
+        detail: string
+        type: string
+        status: number
+      }
+      headers: Record<string, unknown>
+      status: number
+      statusText: string
+    }
 
-    return json({ deleteTweetError: error })
+    return json({ error })
   }
 }

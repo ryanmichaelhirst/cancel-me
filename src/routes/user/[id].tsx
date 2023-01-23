@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import { createEffect, createSignal, For, JSX, Show } from 'solid-js'
 import { useParams } from 'solid-start'
 import { LoadingSpinner } from '~/components/loading-spinner'
+import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
 import type { DeleteTweetResponse, Tweet as TweetRecord, UserUsernameTweetsResponse } from '~/types'
 
@@ -16,6 +17,9 @@ export default function User() {
   const [deleteTweetId, setDeleteTweetId] = createSignal<string>()
   const [embedTweet, setEmbedTweet] = createSignal<string>()
 
+  const [progress, setProgress] = createSignal<number>(0)
+  const [showProgressModal, setShowProgressModal] = createSignal<boolean>()
+
   const onCheckbox: JSX.EventHandler<HTMLInputElement, MouseEvent> = async (e) => {
     const checked = e.currentTarget.checked
     const value = e.currentTarget.value
@@ -26,14 +30,22 @@ export default function User() {
 
   createEffect(async () => {
     setLoadingTweets(true)
-    const data = await (await fetch('/api/current-user/tweets')).json()
+    const data = await (await fetch('/api/current-user/tweets?paginate=false')).json()
 
     setTweets(data)
     setLoadingTweets(false)
   })
 
+  const onShowAllTweets = async () => {
+    setLoadingTweets(true)
+    const data = await (await fetch('/api/current-user/tweets?paginate=true')).json()
+
+    setTweets(data)
+    setLoadingTweets(false)
+  }
+
   const onSelectAll = () => {
-    const currentTweets = tweets()
+    const currentTweets = filteredTweets()
     if (!currentTweets) return
 
     if (isSelectAll()) {
@@ -45,9 +57,11 @@ export default function User() {
     }
   }
 
+  // TODO: API limit is 50 requests per 15 mins - implement cloudflare queues to account for this
   const onDeleteSelectedTweets: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     if (selectedTweetIds().length === 0) return
 
+    setShowProgressModal(true)
     const responses = []
 
     for (const id of selectedTweetIds()) {
@@ -57,10 +71,15 @@ export default function User() {
         })
       ).json()
 
+      setProgress((prev) => {
+        return prev + 1
+      })
       responses.push(resp)
     }
 
     setTweets((prev) => prev.filter((tweet) => !selectedTweetIds().includes(tweet.id)))
+    setShowProgressModal(false)
+    setProgress(0)
   }
 
   const onDelete: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (event) => {
@@ -119,6 +138,13 @@ export default function User() {
     <main>
       <div>User {params.id}</div>
       <section class='flex place-content-evenly items-center'>
+        <button
+          onClick={onShowAllTweets}
+          class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
+          title='Show all tweets'
+        >
+          Show all tweets
+        </button>
         <button
           onClick={onDeleteSelectedTweets}
           class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
@@ -248,6 +274,22 @@ export default function User() {
                 Confirm
               </button>
             </div>
+          </div>
+        </div>
+      </Show>
+      <Show when={showProgressModal()}>
+        <div class='modal'>
+          <div class='modal-content'>
+            <p>
+              Adding your delete requests to the queue, it may take up to 24 hours to delete each
+              tweet you selected.
+            </p>
+            <ProgressBar
+              id='delete-tweet-progress'
+              label={'Deleting'}
+              value={progress()}
+              max={selectedTweetIds().length}
+            />
           </div>
         </div>
       </Show>

@@ -115,4 +115,17 @@ body {
   width: 80%; /* Could be more or less, depending on screen size */
 }
 
+/** progress bar */
+progress::-moz-progress-bar {
+  background: #64748b;
+}
+
+progress::-webkit-progress-value {
+  background: #3B82F6;
+}
+
+progress::-webkit-progress-bar {
+  background: #cbd5e1;
+}
+
 @tailwind utilities;
