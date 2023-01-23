@@ -1,5 +1,9 @@
 import dotenv from 'dotenv'
+import fs from 'fs'
 import { auth, Client } from 'twitter-api-sdk'
+
+const fileContents = fs.readFileSync('./src/files/profanities.txt', 'utf-8')
+const badWords = fileContents.split('\n')
 
 dotenv.config()
 
@@ -21,31 +25,45 @@ export const setAccessToken = (token?: Token) => (accessToken = token)
 class TwitterUserClient {
   public client: Client
   private userId?: string
+  private profanities: string[]
 
   constructor() {
     this.client = new Client(authClient)
+    this.profanities = badWords
   }
 
-  async tweets({ paginate = false }: { paginate?: boolean }) {
-    if (!this.userId)
-      return {
-        errors: [{ title: 'No user id', type: 'runtime-error' }],
-      }
+  isContainProfanity(text: string) {
+    const words = text
+      .toLowerCase()
+      // remove all punctuation from text
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+      .split(' ')
 
-    const resp = await this.client.tweets.usersIdTweets(this.userId)
-    if (!paginate) return resp
+    return words.some((word) => {
+      return this.profanities.includes(word)
+    })
+  }
+
+  async tweets(paginate?: boolean) {
+    if (!this.userId) throw new Error('no user id')
+
+    const resp = await this.client.tweets.usersIdTweets(this.userId, {
+      'tweet.fields': ['id', 'created_at', 'text', 'source'],
+      max_results: 100,
+    })
 
     let nextToken = resp.meta?.next_token
     let results = resp.data ?? []
 
     // paginate through all available tweets
-    while (nextToken) {
+    while (paginate && nextToken) {
       // https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
       let result = await this.client.tweets.usersIdTweets(this.userId, {
         pagination_token: nextToken,
         max_results: 100,
-        start_time: '2012-11-06T07:20:50.52Z',
-        // end_time: '2012-11-06T07:20:50.52Z'
+        // start_time: '2012-11-06T07:20:50.52Z',
+        // end_time: '2012-11-06T07:20:50.52Z',
+        // max_results: 100,
       })
       const tweets = result.data ?? []
       for (const tweet of tweets) {
@@ -55,9 +73,19 @@ class TwitterUserClient {
       nextToken = result.meta?.next_token
     }
 
+    // determine which tweets contains a profanity
+    const data = results.map((tweet) => {
+      const isProfanity = this.isContainProfanity(tweet.text)
+
+      return {
+        ...tweet,
+        isProfanity,
+      }
+    })
+
     return {
       ...resp,
-      data: results,
+      data,
     }
   }
 

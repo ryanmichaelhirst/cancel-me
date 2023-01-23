@@ -1,13 +1,9 @@
-import {
-  deleteTweetById,
-  TwitterPaginatedResponse,
-  TwitterResponse,
-  usersIdTweets,
-} from 'twitter-api-sdk/dist/types'
+import { deleteTweetById, TwitterResponse, usersIdTweets } from 'twitter-api-sdk/dist/types'
 
-export type UserUsernameTweetsResponse = TwitterPaginatedResponse<TwitterResponse<usersIdTweets>>
+export type UserUsernameTweetsResponse = TwitterResponse<usersIdTweets>
 
-export type Tweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
+type TwitterTweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
+export type Tweet = TwitterTweet & { isProfanity?: boolean }
 
 export type DeleteTweetResponse = TwitterResponse<deleteTweetById>
 
