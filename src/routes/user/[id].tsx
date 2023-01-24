@@ -4,7 +4,7 @@ import { useParams } from 'solid-start'
 import { LoadingSpinner } from '~/components/loading-spinner'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
-import type { DeleteTweetResponse, Tweet as TweetRecord, UserUsernameTweetsResponse } from '~/types'
+import type { Tweet as TweetRecord, UserUsernameTweetsResponse } from '~/types'
 
 export default function User() {
   const params = useParams()
@@ -14,11 +14,12 @@ export default function User() {
   const [selectedTab, setSelectedTab] = createSignal<string>('All')
   const [showDeleteModal, setShowDeleteModal] = createSignal<boolean>()
   const [loadingTweets, setLoadingTweets] = createSignal<boolean>()
-  const [deleteTweetId, setDeleteTweetId] = createSignal<string>()
-  const [embedTweet, setEmbedTweet] = createSignal<string>()
+  const [embedHtml, setEmbedHtml] = createSignal<string[]>([])
 
   const [progress, setProgress] = createSignal<number>(0)
   const [showProgressModal, setShowProgressModal] = createSignal<boolean>()
+
+  const [error, setError] = createSignal<string>()
 
   const onCheckbox: JSX.EventHandler<HTMLInputElement, MouseEvent> = async (e) => {
     const checked = e.currentTarget.checked
@@ -61,48 +62,78 @@ export default function User() {
   const onDeleteSelectedTweets: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     if (selectedTweetIds().length === 0) return
 
-    setShowProgressModal(true)
-    const responses = []
-
-    for (const id of selectedTweetIds()) {
-      const resp: DeleteTweetResponse = await (
-        await fetch(`/api/current-user/tweet/${id}`, {
-          method: 'DELETE',
-        })
-      ).json()
-
-      setProgress((prev) => {
-        return prev + 1
-      })
-      responses.push(resp)
+    const previewForFirstTenTweets = selectedTweetIds().slice(0, 10)
+    for (const id of previewForFirstTenTweets) {
+      const resp = await (await fetch(`/api/oembed/${id}`)).json()
+      setEmbedHtml((prev) => prev.concat([resp.html]))
     }
 
-    setTweets((prev) => prev.filter((tweet) => !selectedTweetIds().includes(tweet.id)))
-    setShowProgressModal(false)
-    setProgress(0)
+    setShowDeleteModal(true)
   }
 
   const onDelete: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (event) => {
     const id = event.currentTarget.id
 
     // TODO: get css from this tool @ https://publish.twitter.com/#
-    const twitterHtml = await (await fetch(`/api/oembed/${id}`)).json()
-    setEmbedTweet(twitterHtml.html)
+    const resp = await (await fetch(`/api/oembed/${id}`)).json()
+    setEmbedHtml([resp.html])
 
-    setDeleteTweetId(id)
+    setSelectedTweetIds([id])
     setShowDeleteModal(true)
   }
 
   const onConfirmDelete: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (event) => {
-    const resp = await (
-      await fetch(`/api/current-user/tweet/${deleteTweetId()}`, {
-        method: 'DELETE',
-      })
-    ).json()
-
-    setTweets((prev) => prev.filter((tweet) => tweet.id !== deleteTweetId()))
-    setDeleteTweetId()
     setShowDeleteModal()
+    setShowProgressModal(true)
+
+    const responses = []
+    // create an array where each element is an array of 40 tweet ids to delete
+    const batches: string[][] = []
+    const batchSize = 40
+
+    for (let ii = 0; ii < selectedTweetIds().length; ii += batchSize) {
+      const batch = selectedTweetIds().slice(ii, ii + batchSize)
+      batches.push(batch)
+    }
+
+    // delete 40 tweets every 15 minutes to avoid being rate limited
+    for (const ids of batches) {
+      if (error()) break
+
+      for (const id of ids) {
+        if (error()) break
+
+        const resp = await (
+          await fetch(`/api/current-user/tweet/${id}`, {
+            method: 'DELETE',
+          })
+        ).json()
+
+        if (resp.error) {
+          setError(
+            `There was an error deleting tweet @ https://twitter.com/twitter/status/${id} because of API rate limits. You will not be able to delete tweets for another 15 minutes.`,
+          )
+        }
+
+        setProgress((prev) => {
+          return prev + 1
+        })
+        responses.push(resp)
+      }
+
+      await new Promise((resolve) => setTimeout(() => resolve(null), 1500000))
+    }
+
+    if (error()) return
+
+    setTweets((prev) => prev.filter((tweet) => !selectedTweetIds().includes(tweet.id)))
+    setSelectedTweetIds([])
+  }
+
+  const onCloseProgressModal = () => {
+    setShowProgressModal(false)
+    setProgress(0)
+    setError()
   }
 
   const onSubmit: JSX.EventHandler<HTMLFormElement, Event> = async (e) => {
@@ -210,20 +241,12 @@ export default function User() {
                 Profanities
               </div>
             </div>
+            <hr class='my-2' />
             <div role='tabpanel'>
               <table>
                 <thead>
                   <tr class='text-left text-slate-800'>
-                    <th></th>
-                    <th class='w-10'>#</th>
-                    <th class=''>Tweet</th>
-                    <th class=''>Date</th>
-                    <th class='w-12'></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
+                    <th class='w-10'>
                       <input
                         type='checkbox'
                         id='select-all'
@@ -235,7 +258,16 @@ export default function User() {
                       <label for='selected' hidden>
                         Select all
                       </label>
-                    </td>
+                    </th>
+                    <th class='w-10'>#</th>
+                    <th class='min-w-52'>TWEET</th>
+                    <th class='w-32'>DATE</th>
+                    <th class='w-32'></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td></td>
                   </tr>
                   <For each={filteredTweets()}>
                     {(tweet, idx) => (
@@ -258,8 +290,19 @@ export default function User() {
       <Show when={showDeleteModal()}>
         <div class='modal'>
           <div class='modal-content'>
-            <p class='mb-4'>Are you sure you want to delete this tweet?</p>
-            <div innerHTML={embedTweet()} />
+            <p class='mb-4'>
+              {selectedTweetIds().length === 1
+                ? 'Are you sure you want to delete this tweet?'
+                : 'Are you sure you want to delete these tweets?'}
+            </p>
+            <p class='mb-4'>
+              If you selected more than 10 tweets only the first 10 ten will show in the list below.
+            </p>
+            <For each={embedHtml()}>
+              {(html) => (
+                <div innerHTML={html} class='mb-2 rounded border border-gray-200 p-3 shadow' />
+              )}
+            </For>
             <div class='mt-10 flex space-x-5'>
               <button
                 onClick={(e) => setShowDeleteModal()}
@@ -280,16 +323,29 @@ export default function User() {
       <Show when={showProgressModal()}>
         <div class='modal'>
           <div class='modal-content'>
-            <p>
-              Adding your delete requests to the queue, it may take up to 24 hours to delete each
-              tweet you selected.
+            <h1 class='mb-6 text-lg font-bold'>Deleting tweets</h1>
+            <p class='mb-4'>
+              Adding your delete requests to the queue. Due to API restrictions it may take up to 24
+              hours to delete each tweet you selected. Please keep this page open until the
+              operation is finished.
             </p>
             <ProgressBar
               id='delete-tweet-progress'
-              label={'Deleting'}
+              label={`${progress()} / ${selectedTweetIds().length} queued`}
               value={progress()}
               max={selectedTweetIds().length}
             />
+            <Show when={error()}>
+              <p class='my-4 rounded border p-2 text-red-500 shadow'>{error()}</p>
+            </Show>
+            <div class='mt-4 flex items-center justify-end'>
+              <button
+                onClick={onCloseProgressModal}
+                class='rounded bg-blue-500 py-1 px-2 text-white hover:bg-blue-600'
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </Show>
