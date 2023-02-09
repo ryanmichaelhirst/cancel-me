@@ -1,11 +1,14 @@
 {
   "name": "cancel-me",
   "scripts": {
-    "dev": "solid-start dev",
+    "dev:solid": "solid-start dev",
+    "dev:postgres": "docker-compose -f docker-compose-dev.yml up",
+    "dev": "run-p dev:*",
     "build": "solid-start build",
     "start": "solid-start start",
     "prettier": "npx prettier --write src",
-    "lint": "eslint . --ext ts --ext tsx --fix"
+    "lint": "eslint . --ext ts --ext tsx --fix",
+    "tunnel": "cloudflared tunnel --config cloudflare.yaml run"
   },
   "type": "module",
   "devDependencies": {
@@ -17,6 +20,7 @@
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.4.21",
     "prettier": "^2.8.3",
     "prettier-plugin-organize-imports": "^3.2.2",
@@ -27,15 +31,20 @@
     "vite": "^3.1.8"
   },
   "dependencies": {
+    "@prisma/client": "^4.9.0",
     "@solidjs/meta": "^0.28.0",
     "@solidjs/router": "^0.6.0",
     "classnames": "^2.3.2",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
+    "micro": "^10.0.1",
+    "prisma": "^4.9.0",
     "solid-heroicons": "^3.1.1",
     "solid-js": "^1.6.2",
     "solid-start": "^0.2.0",
+    "stripe": "^11.7.0",
     "twitter-api-sdk": "^1.2.1",
+    "twitter-lite": "^1.1.0",
     "undici": "^5.11.0"
   },
   "engines": {

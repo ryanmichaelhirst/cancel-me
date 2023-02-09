@@ -7,6 +7,9 @@ dist
 netlify
 .env
 
+# cloudflare ssh tunnel
+cloudflare.yaml
+
 # dependencies
 /node_modules
 
