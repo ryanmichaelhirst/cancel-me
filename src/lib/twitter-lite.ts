@@ -3,30 +3,14 @@
 
 // Library to support V1 of twitter api
 // https://github.com/draftbit/twitter-lite
-import fs from 'fs'
-import path from 'path'
+
 import Twitter from 'twitter-lite'
 import { ProfanityMetrics, Tweet } from '~/types'
-
-const profanitiesFile = path.join(process.cwd(), 'files', 'profanities.txt')
-const profanitiesContent = fs.readFileSync(profanitiesFile, 'utf-8')
-const badWords = profanitiesContent.split('\n')
-
-const mildFile = path.join(process.cwd(), 'files', 'mild.txt')
-const mildContents = fs.readFileSync(mildFile, 'utf-8')
-const mildWords = mildContents.split('\n')
-
-const mediumFile = path.join(process.cwd(), 'files', 'medium.txt')
-const mediumContents = fs.readFileSync(mediumFile, 'utf-8')
-const mediumWords = mediumContents.split('\n')
-
-const strongFile = path.join(process.cwd(), 'files', 'strong.txt')
-const strongContents = fs.readFileSync(strongFile, 'utf-8')
-const strongWords = strongContents.split('\n')
-
-const strongestFile = path.join(process.cwd(), 'files', 'strongest.txt')
-const strongestContents = fs.readFileSync(strongestFile, 'utf-8')
-const strongestWords = strongestContents.split('\n')
+import mediumWords from '~/word-lists/medium'
+import mildWords from '~/word-lists/mild'
+import badWords from '~/word-lists/profanities'
+import strongWords from '~/word-lists/strong'
+import strongestWords from '~/word-lists/strongest'
 
 class TwitterLite {
   public client: Twitter
