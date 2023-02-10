@@ -41,7 +41,7 @@
     "prisma": "^4.9.0",
     "solid-heroicons": "^3.1.1",
     "solid-js": "^1.6.2",
-    "solid-start": "^0.2.0",
+    "solid-start": "^0.2.20",
     "stripe": "^11.7.0",
     "twitter-api-sdk": "^1.2.1",
     "twitter-lite": "^1.1.0",
