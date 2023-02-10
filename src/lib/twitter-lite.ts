@@ -8,38 +8,23 @@ import path from 'path'
 import Twitter from 'twitter-lite'
 import { ProfanityMetrics, Tweet } from '~/types'
 
-const profanitiesFile =
-  process.env.NODE_ENV === 'development'
-    ? 'public/files/profanities.txt'
-    : path.resolve('./public', 'files', 'profanities.txt')
+const profanitiesFile = path.join(process.cwd(), 'public', 'files', 'profanities.txt')
 const profanitiesContent = fs.readFileSync(profanitiesFile, 'utf-8')
 const badWords = profanitiesContent.split('\n')
 
-const mildFile =
-  process.env.NODE_ENV === 'development'
-    ? path.join(process.cwd(), 'public', 'files', 'mild.txt')
-    : path.join(process.cwd(), 'files', 'mild.txt')
+const mildFile = path.join(process.cwd(), 'public', 'files', 'mild.txt')
 const mildContents = fs.readFileSync(mildFile, 'utf-8')
 const mildWords = mildContents.split('\n')
 
-const mediumFile =
-  process.env.NODE_ENV === 'development'
-    ? path.join(process.cwd(), 'public', 'files', 'medium.txt')
-    : path.join(process.cwd(), 'files', 'medium.txt')
+const mediumFile = path.join(process.cwd(), 'public', 'files', 'medium.txt')
 const mediumContents = fs.readFileSync(mediumFile, 'utf-8')
 const mediumWords = mediumContents.split('\n')
 
-const strongFile =
-  process.env.NODE_ENV === 'development'
-    ? path.join(process.cwd(), 'public', 'files', 'strong.txt')
-    : path.join(process.cwd(), 'files', 'strong.txt')
+const strongFile = path.join(process.cwd(), 'public', 'files', 'strong.txt')
 const strongContents = fs.readFileSync(strongFile, 'utf-8')
 const strongWords = strongContents.split('\n')
 
-const strongestFile =
-  process.env.NODE_ENV === 'development'
-    ? path.join(process.cwd(), 'public', 'files', 'strongest.txt')
-    : path.join(process.cwd(), 'files', 'strongest.txt')
+const strongestFile = path.join(process.cwd(), 'public', 'files', 'strongest.txt')
 const strongestContents = fs.readFileSync(strongestFile, 'utf-8')
 const strongestWords = strongestContents.split('\n')
 
