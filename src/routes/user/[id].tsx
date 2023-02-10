@@ -119,7 +119,7 @@ export default function User() {
         if (error()) break
 
         const resp = await (
-          await fetch(`/api/v1/user/${params.id}/tweet/${id}`, {
+          await fetch(`/api/v1/tweet/${id}`, {
             method: 'DELETE',
           })
         ).json()
