@@ -4,10 +4,15 @@
 // Library to support V1 of twitter api
 // https://github.com/draftbit/twitter-lite
 import fs from 'fs'
+import path from 'path'
 import Twitter from 'twitter-lite'
 import { ProfanityMetrics, Tweet } from '~/types'
 
-const profanitiesContent = fs.readFileSync('./src/files/profanities.txt', 'utf-8')
+const profanitiesFile =
+  process.env.NODE_ENV === 'development'
+    ? path.join(process.cwd(), 'src', 'files', 'profanities.txt')
+    : path.join(process.cwd(), 'files', 'profanities.txt')
+const profanitiesContent = fs.readFileSync(profanitiesFile, 'utf-8')
 const badWords = profanitiesContent.split('\n')
 
 const mildContents = fs.readFileSync('./src/files/mild.txt', 'utf-8')
