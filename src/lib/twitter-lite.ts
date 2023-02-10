@@ -10,8 +10,8 @@ import { ProfanityMetrics, Tweet } from '~/types'
 
 const profanitiesFile =
   process.env.NODE_ENV === 'development'
-    ? path.join(process.cwd(), 'public', 'files', 'profanities.txt')
-    : path.join('files', 'profanities.txt')
+    ? 'public/files/profanities.txt'
+    : path.resolve('./public', 'files', 'profanities.txt')
 const profanitiesContent = fs.readFileSync(profanitiesFile, 'utf-8')
 const badWords = profanitiesContent.split('\n')
 
