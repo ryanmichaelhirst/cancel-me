@@ -8,7 +8,6 @@ import { useLayoutRouteData } from '~/routes/[...index]'
 
 export default function Donate() {
   const data = useRouteData<useLayoutRouteData>()
-  console.log(data())
 
   const onLogin: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     const resp = await (await fetch(`/api/v1/oauth/login`)).json()

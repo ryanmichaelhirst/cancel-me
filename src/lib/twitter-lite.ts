@@ -12,9 +12,11 @@ import badWords from '~/word-lists/profanities'
 import strongWords from '~/word-lists/strong'
 import strongestWords from '~/word-lists/strongest'
 
+type Credentials = { id_str: string; email: string; id: number; screen_name: string }
+
 class TwitterLite {
   public client: Twitter
-  public credentials: { id_str: string; email: string; id: number } | undefined
+  public credentials?: Credentials
   private profanities: string[]
   private mildWords: string[]
   private mediumWords: string[]

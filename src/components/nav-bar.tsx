@@ -29,16 +29,22 @@ export const Navbar = () => {
 
   return (
     <nav class='flex min-h-[10vh] items-center justify-end space-x-4'>
-      <A href='/' class={classNames(path() === '/' && 'text-blue-500')}>
+      <A href='/' class={classNames('hover:text-blue-700', path() === '/' && 'text-blue-500')}>
         Home
       </A>
-      <A href='/donate' class={classNames(path() === '/donate' && 'text-blue-500')}>
+      <A
+        href='/donate'
+        class={classNames('hover:text-blue-700', path() === '/donate' && 'text-blue-500')}
+      >
         Donate
       </A>
       {data()?.credentials && (
         <A
           href={`/user/${data()?.credentials?.id_str}`}
-          class={classNames(path() === `/user/${data()?.credentials?.id_str}` && 'text-blue-500')}
+          class={classNames(
+            'hover:text-blue-700',
+            path() === `/user/${data()?.credentials?.id_str}` && 'text-blue-500',
+          )}
         >
           Dashboard
         </A>

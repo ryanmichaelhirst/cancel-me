@@ -1,8 +1,9 @@
+import { A } from '@solidjs/router'
 import classNames from 'classnames'
 import { Icon } from 'solid-heroicons'
-import { checkBadge, exclamationCircle, userCircle, xCircle } from 'solid-heroicons/outline'
-import { createSignal, For, JSX, onMount, Show } from 'solid-js'
-import { RouteDataArgs, useParams, useRouteData } from 'solid-start'
+import { checkBadge, exclamationCircle, userCircle, xCircle, xMark } from 'solid-heroicons/outline'
+import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
+import { RouteDataArgs, useParams, useRouteData, useSearchParams } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
@@ -22,8 +23,29 @@ export const routeData = ({ params }: RouteDataArgs) => {
   )
 }
 
+const DonationAlert = (props: {
+  title: string
+  description: JSXElement
+  onClick: JSX.EventHandler<HTMLOrSVGElement, MouseEvent>
+  class: string
+}) => (
+  <div class={classNames('w-fit rounded py-2 px-4 text-white shadow ', props.class)}>
+    <div class='mb-2 flex items-center justify-between border-b border-b-white'>
+      <span class='text-lg'>{props.title}</span>
+      <Icon
+        path={xMark}
+        class='ml-2 h-4 w-4 cursor-pointer text-inherit hover:text-slate-200'
+        onClick={props.onClick}
+      />
+    </div>
+    <span class='text-sm'>{props.description}</span>
+  </div>
+)
+
 export default function User() {
   const params = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+
   const [tweets, setTweets] = createSignal<TweetRecord[]>([])
   const [selectedTweetIds, setSelectedTweetIds] = createSignal<string[]>([])
   const [isSelectAll, setIsSelectAll] = createSignal<boolean>()
@@ -61,20 +83,13 @@ export default function User() {
 
   onMount(async () => {
     setLoadingTweets(true)
-    const data = await (await fetch(`/api/v1/user/${params.id}/tweets`)).json()
+    // control loading all tweets with ?paginate=(true|false)
+    const data = await (await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)).json()
     // const resp = await (await fetch(`/api/v1/user/${params.id}/rate_limit_status`)).json()
 
     setTweets(data)
     setLoadingTweets(false)
   })
-
-  const onShowAllTweets = async () => {
-    setLoadingTweets(true)
-    const data = await (await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)).json()
-
-    setTweets(data)
-    setLoadingTweets(false)
-  }
 
   const onSelectAll = () => {
     const currentTweets = filteredTweets()
@@ -118,9 +133,9 @@ export default function User() {
     setShowProgressModal(true)
 
     const responses = []
-    // create an array where each element is an array of 150 tweet ids to delete
+    // create an array where each element is an array of 2000 tweet ids to delete
     const batches: string[][] = []
-    const batchSize = 150
+    const batchSize = 2000
     const uniqueSelectedTweetIds = [...new Set(selectedTweetIds())]
 
     for (let ii = 0; ii < uniqueSelectedTweetIds.length; ii += batchSize) {
@@ -156,6 +171,12 @@ export default function User() {
         responses.push(resp)
       }
 
+      // delay for 15 mins if we are deleting more than 2000 tweets
+      if (selectedTweetIds().length >= 2000) {
+        await new Promise((resolve) => setTimeout(() => resolve(null), 1500000))
+      }
+
+      // old rate limiting implementation
       // delay for 15 mins if we are deleting more than 150 tweets
       // if (selectedTweetIds().length >= 150) {
       //   await new Promise((resolve) => setTimeout(() => resolve(null), 1500000))
@@ -204,6 +225,8 @@ export default function User() {
     setShowUploadModal(false)
   }
 
+  const onCloseAlert = () => setSearchParams({ transaction: null })
+
   const filteredTweets = () => {
     if (selectedTab() === 'All') return tweets()
 
@@ -214,10 +237,40 @@ export default function User() {
 
   return (
     <Page>
-      <section class='mt-4 flex w-fit flex-col rounded-lg border p-4 shadow'>
+      {searchParams.transaction && (
+        <section>
+          {searchParams.transaction === 'completed' && (
+            <DonationAlert
+              title='Donation completed'
+              description='Thank you for donating! You can now use the search and upload features'
+              onClick={onCloseAlert}
+              class='bg-green-500'
+            />
+          )}
+          {searchParams.transaction === 'canceled' && (
+            <DonationAlert
+              title='Donation canceled'
+              description={
+                <>
+                  Your donation has been canceled. If this was a mistake you can try again on the{' '}
+                  <A href='/donate' class='text-blue-400 hover:text-blue-500'>
+                    donate
+                  </A>{' '}
+                  page
+                </>
+              }
+              onClick={onCloseAlert}
+              class='bg-red-500'
+            />
+          )}
+        </section>
+      )}
+      <section class='mt-4 flex flex-col rounded-lg border p-4 shadow'>
         <div class='mb-2 flex'>
           <Icon path={userCircle} class='mr-2 h-6 w-6' />
-          <span>{params.id}</span>
+          <span>
+            {data()?.credentials?.screen_name} ({params.id})
+          </span>
         </div>
         {isPremiumUser() ? (
           <div class='flex text-blue-500'>
@@ -227,26 +280,37 @@ export default function User() {
         ) : (
           <div class='flex text-red-500'>
             <Icon path={xCircle} class='mr-2 h-6 w-6 text-inherit' />
-            <span>To unlock the search and upload feature, make a one time donation!</span>
+            <p>
+              To unlock the search and upload feature, make a one time donation{' '}
+              <A href='/donate' class='text-blue-400 hover:text-blue-500'>
+                here
+              </A>
+              !
+            </p>
           </div>
         )}
       </section>
 
       <div class='my-4 rounded-lg border border-red-400 p-4 text-red-500 shadow'>
-        <Icon path={exclamationCircle} class='mb-4 h-6 w-6 text-inherit' />
+        <div class='mb-4 flex items-center'>
+          <Icon path={exclamationCircle} class='h-8 w-8 text-inherit' />
+          <p class='ml-2 text-2xl'>README</p>
+        </div>
+
         <p class='mb-2'>
           Due to the nature of Twitter's api, you are only able to delete your most recent 3200
-          tweets
+          tweets.
         </p>
         <p class='mb-2'>
           If you would like to delete more tweets, please download a csv of all your tweets{' '}
           <a class='text-blue-500' href='https://twitter.com/settings/download_your_data'>
             here
           </a>{' '}
-          and click the Upload button.
+          and use the "Upload Csv" feature. You must make a one time donation before being able to
+          use this feature.
         </p>
         <p>
-          You can find more information on this{' '}
+          You can find more information on this api limitation{' '}
           <a
             class='text-blue-500'
             href='https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline'
@@ -266,17 +330,10 @@ export default function User() {
         </section>
       )}
 
-      <section class='flex items-center justify-between'>
-        <button
-          onClick={onShowAllTweets}
-          class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
-          title='Show all tweets'
-        >
-          Show all tweets
-        </button>
+      <section class='flex items-center justify-between rounded-t border border-b-0 border-blue-200 p-4'>
         <button
           onClick={onDeleteSelectedTweets}
-          class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
+          class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:cursor-not-allowed disabled:border-gray-500 disabled:opacity-50'
           disabled={selectedTweetIds().length === 0}
           title='Delete tweets'
         >
@@ -300,8 +357,8 @@ export default function User() {
               id='username-field'
               name='username'
               class='rounded-l border-l border-t border-b py-1 px-3 enabled:border-blue-500 disabled:border-gray-500 disabled:opacity-50'
-              placeholder='Search a username'
-              title='Search a username'
+              placeholder='Enter a username'
+              title='Username search'
             />
             <button
               disabled={!isPremiumUser()}
@@ -315,7 +372,7 @@ export default function User() {
         </form>
       </section>
 
-      <section class='mt-10 rounded border border-solid border-blue-200 p-4'>
+      <section class='rounded-b border border-blue-200 p-4'>
         {loadingTweets() ? (
           <div class='flex flex-col items-center justify-center'>
             <p>Loading tweets...</p>
@@ -362,6 +419,7 @@ export default function User() {
                         checked={isSelectAll()}
                         onChange={onSelectAll}
                         title='Select all'
+                        class='hover:cursor-pointer'
                       />
                       <label for='selected' hidden>
                         Select all

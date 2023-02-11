@@ -4,7 +4,6 @@ import { twitterLite } from '~/lib/twitter-lite'
 export async function GET({ params, request }: APIEvent) {
   try {
     const resp = await twitterLite.client.get('application/rate_limit_status')
-    console.log(resp)
 
     return json(resp)
   } catch (error) {

@@ -1,13 +1,11 @@
 import { APIEvent, redirect } from 'solid-start/api'
 import { stripe } from '~/lib/stripe'
 
-const DOMAIN_URL =
-  process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.cancelme.io'
-
-console.log(process.env.NODE_ENV, { DOMAIN_URL })
-
 export async function POST({ request }: APIEvent) {
+  const url = new URL(request.url)
+  const origin = url.origin
   console.log('hit api/stripe/checkout')
+  console.log(`origin is ${origin}`)
 
   try {
     const formData = await request.formData()
@@ -27,8 +25,8 @@ export async function POST({ request }: APIEvent) {
     const session = await stripe.checkout.sessions.create({
       line_items: [lineItem],
       mode: 'payment',
-      success_url: `${DOMAIN_URL}/donate?success=true&userId=${userId}`,
-      cancel_url: `${DOMAIN_URL}/donate?canceled=true&userId=${userId}`,
+      success_url: `${origin}/user/${userId}?transaction=completed`,
+      cancel_url: `${origin}/user/${userId}?transaction=canceled`,
       customer_email: email,
       metadata: {
         productId,
