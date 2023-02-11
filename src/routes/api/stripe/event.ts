@@ -4,7 +4,7 @@ import { prisma } from '~/lib/prisma'
 import { stripe } from '~/lib/stripe'
 import { StripeError, StripeEvent } from '~/types'
 
-const signingSecret = 'whsec_SFhrWZffCmKZyMysBJrXoEC6vric2ZKc'
+const signingSecret = process.env.STRIPE_SIGNING_SECRET
 
 const isStripeError = (err: unknown): err is StripeError =>
   typeof err === 'object' && err !== null && 'message' in err
@@ -57,7 +57,7 @@ export async function POST({ params, request }: APIEvent) {
   } catch (err) {
     const errMessage = isStripeError(err) ? err.message : err
 
-    return new Response('Could not construct event', { status: 500 })
+    return new Response(`Could not construct event: ${errMessage}`, { status: 500 })
   }
 
   switch (event.type) {
