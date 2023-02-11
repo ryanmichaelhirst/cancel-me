@@ -3,7 +3,7 @@ import { Icon } from 'solid-heroicons'
 import { arrowDownTray, arrowUpTray, magnifyingGlassCircle } from 'solid-heroicons/outline'
 import { JSX } from 'solid-js'
 import { Title, useRouteData } from 'solid-start'
-import { useLayoutRouteData } from '~/routes/[...index]'
+import { useLayoutRouteData } from '~/routes/(index)'
 
 export default function Donate() {
   const data = useRouteData<useLayoutRouteData>()
