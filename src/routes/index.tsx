@@ -1,9 +1,26 @@
 import { Icon } from 'solid-heroicons'
 import { archiveBox, chatBubbleLeftRight, magnifyingGlassCircle } from 'solid-heroicons/outline'
 import { JSX } from 'solid-js'
-import { Title } from 'solid-start'
+import { RouteDataArgs, Title, useRouteData } from 'solid-start'
+import { createServerData$ } from 'solid-start/server'
+import { Page } from '~/components/page'
+import { twitterLite } from '~/lib/twitter-lite'
+import { getProducts } from '~/util/products'
 
-export default function Index() {
+export const routeData = ({ params }: RouteDataArgs) => {
+  return createServerData$(async () => {
+    const credentials = twitterLite.credentials
+    const products = await getProducts()
+
+    return { credentials, products }
+  })
+}
+
+export type useLayoutRouteData = typeof routeData
+
+export default function Layout() {
+  const data = useRouteData<useLayoutRouteData>()
+
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     const resp = await (await fetch(`/api/v1/oauth/login`)).json()
 
@@ -11,7 +28,7 @@ export default function Index() {
   }
 
   return (
-    <main class='min-h-full'>
+    <Page credentials={data()?.credentials}>
       <Title>Home - Cancel Me</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Time to cancel yourself</h1>
 
@@ -100,6 +117,6 @@ export default function Index() {
           </button>
         </div>
       </section>
-    </main>
+    </Page>
   )
 }

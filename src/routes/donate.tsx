@@ -3,7 +3,8 @@ import { Icon } from 'solid-heroicons'
 import { arrowDownTray, arrowUpTray, magnifyingGlassCircle } from 'solid-heroicons/outline'
 import { JSX } from 'solid-js'
 import { Title, useRouteData } from 'solid-start'
-import { useLayoutRouteData } from '~/routes/(home)'
+import { Page } from '~/components/page'
+import { useLayoutRouteData } from '~/routes'
 
 export default function Donate() {
   const data = useRouteData<useLayoutRouteData>()
@@ -15,7 +16,7 @@ export default function Donate() {
   }
 
   return (
-    <main class='flex min-h-[90vh] flex-col'>
+    <Page credentials={data()?.credentials}>
       <Title>Donate - Stripe</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Donate</h1>
 
@@ -92,6 +93,6 @@ export default function Donate() {
           </div>
         ))}
       </section>
-    </main>
+    </Page>
   )
 }

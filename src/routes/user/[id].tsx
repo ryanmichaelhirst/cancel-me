@@ -6,16 +6,21 @@ import { RouteDataArgs, useParams, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
+import { Page } from '~/components/page'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
 import { prisma } from '~/lib/prisma'
+import { twitterLite } from '~/lib/twitter-lite'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(
     async ([, userId], { request }) => {
-      return prisma.donation.findMany({ where: { userId } })
+      const credentials = twitterLite.credentials
+      const donations = prisma.donation.findMany({ where: { userId } })
+
+      return { credentials, donations }
     },
     { key: () => ['donations', params.id] },
   )
@@ -43,11 +48,11 @@ export default function User() {
 
   const [showUploadModal, setShowUploadModal] = createSignal<boolean>()
 
-  const donations = useRouteData<typeof routeData>()
+  const data = useRouteData<typeof routeData>()
   const isPremiumUser = () => {
-    if (!donations()) return
+    if (!data()?.donations) return
 
-    return donations()?.length > 0
+    return data()?.donations.length > 0
   }
 
   const onCheckbox: JSX.EventHandler<HTMLInputElement, MouseEvent> = async (e) => {
@@ -212,7 +217,7 @@ export default function User() {
   }
 
   return (
-    <main>
+    <Page credentials={data()?.credentials}>
       <section class='mt-4 flex w-fit flex-col rounded-lg border p-4 shadow'>
         <div class='mb-2 flex'>
           <Icon path={userCircle} class='mr-2 h-6 w-6' />
@@ -465,6 +470,6 @@ export default function User() {
           </div>
         </div>
       </Show>
-    </main>
+    </Page>
   )
 }
