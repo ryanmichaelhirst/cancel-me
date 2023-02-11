@@ -65,7 +65,9 @@ export async function GET({ params, request }: APIEvent) {
       }
     }
 
-    return json(data)
+    const metrics = twitterLite.profanityMetrics(data)
+
+    return json({ tweets: data, metrics })
   } catch (error) {
     return new Response('Unable to get tweets', { status: 401 })
   }

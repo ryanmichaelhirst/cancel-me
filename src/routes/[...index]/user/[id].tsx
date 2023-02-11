@@ -59,10 +59,7 @@ export default function User() {
 
   const [error, setError] = createSignal<string>()
 
-  const [profanityMetrics, setProfanityMetrics] = createSignal<{
-    metrics: ProfanityMetrics
-    username: string
-  }>()
+  const [profanityMetrics, setProfanityMetrics] = createSignal<ProfanityMetrics>()
 
   const [showUploadModal, setShowUploadModal] = createSignal<boolean>()
 
@@ -84,10 +81,14 @@ export default function User() {
   onMount(async () => {
     setLoadingTweets(true)
     // control loading all tweets with ?paginate=(true|false)
-    const data = await (await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)).json()
+    const { tweets, metrics } = await (
+      await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)
+    ).json()
     // const resp = await (await fetch(`/api/v1/user/${params.id}/rate_limit_status`)).json()
+    console.log(metrics)
 
-    setTweets(data)
+    setTweets(tweets)
+    setProfanityMetrics(metrics)
     setLoadingTweets(false)
   })
 
@@ -157,7 +158,7 @@ export default function User() {
             method: 'DELETE',
           })
         ).json()
-        console.log(resp, counter)
+        // console.log(resp, counter)
 
         if (resp.error) {
           setError(
@@ -208,7 +209,7 @@ export default function User() {
     const resp = await (await fetch(`/api/v1/user/${username}/search`)).json()
 
     setTweets(resp.tweets)
-    setProfanityMetrics({ metrics: resp.metrics, username: resp.username })
+    setProfanityMetrics(resp.metrics)
   }
 
   const onTabChange: JSX.EventHandler<HTMLDivElement, Event> = (e) => {
@@ -218,10 +219,7 @@ export default function User() {
 
   const onUpload = (resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics }) => {
     setTweets(resp.tweets)
-    setProfanityMetrics({
-      metrics: resp.metrics,
-      username: '',
-    })
+    setProfanityMetrics(resp.metrics)
     setShowUploadModal(false)
   }
 
@@ -324,8 +322,8 @@ export default function User() {
       {profanityMetrics() && (
         <section>
           <ProfanityScoreCard
-            metrics={profanityMetrics()?.metrics}
-            username={profanityMetrics()?.username}
+            metrics={profanityMetrics()}
+            username={data()?.credentials?.screen_name}
           />
         </section>
       )}
@@ -493,7 +491,7 @@ export default function User() {
             <p class='mb-4'>
               Adding your delete requests to the queue. Due to API restrictions it may take up to 24
               hours to delete each tweet you selected. Please keep this page open until the
-              operation is finished. 40 tweets will be deleted every 15 minutes.
+              operation is finished. We will delete 2000 tweets every 15 minutes.
             </p>
             <ProgressBar
               id='delete-tweet-progress'

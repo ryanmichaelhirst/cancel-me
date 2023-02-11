@@ -44,7 +44,7 @@ export async function GET({ params, request }: APIEvent) {
 
     const metrics = twitterLite.profanityMetrics(data)
 
-    return json({ tweets: data, metrics, username: userShowResp.screen_name })
+    return json({ tweets: data, metrics })
   } catch (error) {
     return new Response('Unable to search user', { status: 401 })
   }

@@ -22,7 +22,7 @@ const ColorBar = (props: { metric: number; title: string; bgColor: string }) => 
 const MetricCount = (props: any) => {
   return (
     <div>
-      <p class='text-lg text-slate-500'>{props.title}</p>
+      <p class={classNames('text-lg', props.bgColor)}>{props.title}</p>
       <div class='flex'>
         <Icon path={props.icon} class={classNames('h-6 w-6 text-inherit', props.bgColor)} />
         <p class='ml-2'>{props.metric}</p>
@@ -51,7 +51,7 @@ export const ProfanityScoreCard = (props: any) => {
       <p class='text-2xl text-slate-900'>{score}</p>
       <div class='mt-4 flex'>
         <ColorBar title='Mild tweets' metric={props.metrics.mild} bgColor='bg-yellow-300' />
-        <ColorBar title='Medium tweets' metric={props.metrics.medium} bgColor='bg-yellow-500' />
+        <ColorBar title='Medium tweets' metric={props.metrics.medium} bgColor='bg-orange-500' />
         <ColorBar title='Strong tweets' metric={props.metrics.strong} bgColor='bg-red-500' />
         <ColorBar
           title='Strongest tweets'
@@ -74,7 +74,7 @@ export const ProfanityScoreCard = (props: any) => {
           title='Medium'
           icon={faceFrown}
           metric={props.metrics.medium}
-          bgColor='text-yellow-500'
+          bgColor='text-orange-500'
         />
         <MetricCount
           title='Strong'
