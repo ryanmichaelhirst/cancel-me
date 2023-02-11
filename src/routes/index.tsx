@@ -4,10 +4,11 @@ import { JSX } from 'solid-js'
 import { RouteDataArgs, Title, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { Page } from '~/components/page'
+import { credentials } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(async () => {
-    return { credentials: undefined, products: [] }
+    return { credentials: credentials(), products: [] }
   })
 }
 
