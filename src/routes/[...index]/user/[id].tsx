@@ -11,12 +11,12 @@ import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
-import { credentials } from '~/util'
+import { credentials, donations } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(
     async ([, userId], { request }) => {
-      return { credentials: credentials(), donations: [] }
+      return { credentials: credentials(), donations: await donations({ userId }) }
     },
     { key: () => ['donations', params.id] },
   )
@@ -213,7 +213,7 @@ export default function User() {
   }
 
   return (
-    <Page credentials={data()?.credentials}>
+    <Page>
       <section class='mt-4 flex w-fit flex-col rounded-lg border p-4 shadow'>
         <div class='mb-2 flex'>
           <Icon path={userCircle} class='mr-2 h-6 w-6' />

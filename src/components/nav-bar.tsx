@@ -1,16 +1,14 @@
-import { useLocation } from '@solidjs/router'
+import { useLocation, useRouteData } from '@solidjs/router'
 import classNames from 'classnames'
 import { createEffect, createSignal, JSX } from 'solid-js'
 import { A, refetchRouteData, useNavigate } from 'solid-start'
+import { useLayoutRouteData } from '~/routes/[...index]'
 
-interface NavbarProps {
-  credentials?: { id_str: string; email: string; id: number }
-}
-
-export const Navbar = (props: NavbarProps) => {
+export const Navbar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [path, setPath] = createSignal<string>()
+  const data = useRouteData<useLayoutRouteData>()
 
   createEffect(async () => {
     setPath(location.pathname)
@@ -37,15 +35,15 @@ export const Navbar = (props: NavbarProps) => {
       <A href='/donate' class={classNames(path() === '/donate' && 'text-blue-500')}>
         Donate
       </A>
-      {props.credentials && (
+      {data()?.credentials && (
         <A
-          href={`/user/${props.credentials.id_str}`}
-          class={classNames(path() === `/user/${props.credentials.id_str}` && 'text-blue-500')}
+          href={`/user/${data()?.credentials?.id_str}`}
+          class={classNames(path() === `/user/${data()?.credentials?.id_str}` && 'text-blue-500')}
         >
           Dashboard
         </A>
       )}
-      {props.credentials ? (
+      {data()?.credentials?.id_str ? (
         <button
           onClick={onLogout}
           class='rounded bg-blue-500 py-1 px-2 text-white hover:bg-blue-600'
