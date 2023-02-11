@@ -2,7 +2,8 @@ import classNames from 'classnames'
 import { Icon } from 'solid-heroicons'
 import { checkBadge, exclamationCircle, userCircle, xCircle } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, onMount, Show } from 'solid-js'
-import { createRouteData, RouteDataArgs, useParams, useRouteData } from 'solid-start'
+import { RouteDataArgs, useParams, useRouteData } from 'solid-start'
+import { createServerData$ } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
 import { Page } from '~/components/page'
@@ -10,11 +11,15 @@ import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
+import { donations } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  return createRouteData(() => {
-    return { credentials: undefined, donations: undefined }
-  })
+  return createServerData$(
+    async ([, userId], { request }) => {
+      return { credentials: undefined, donations: donations({ userId }) }
+    },
+    { key: () => ['donations', params.id] },
+  )
 }
 
 export default function User() {

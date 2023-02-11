@@ -1,12 +1,16 @@
 import { Icon } from 'solid-heroicons'
 import { archiveBox, chatBubbleLeftRight, magnifyingGlassCircle } from 'solid-heroicons/outline'
 import { JSX } from 'solid-js'
-import { createRouteData, RouteDataArgs, Title, useRouteData } from 'solid-start'
+import { RouteDataArgs, Title, useRouteData } from 'solid-start'
+import { createServerData$ } from 'solid-start/server'
 import { Page } from '~/components/page'
+import { getProducts } from '~/util/products'
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  return createRouteData(() => {
-    return { credentials: undefined, donations: undefined }
+  return createServerData$(async () => {
+    const products = await getProducts()
+
+    return { credentials: undefined, products }
   })
 }
 
