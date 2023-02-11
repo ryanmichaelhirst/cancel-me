@@ -1,14 +1,25 @@
 import classNames from 'classnames'
 import { Icon } from 'solid-heroicons'
-import { exclamationCircle } from 'solid-heroicons/outline'
+import { checkBadge, exclamationCircle, userCircle, xCircle } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, onMount, Show } from 'solid-js'
-import { useParams } from 'solid-start'
+import { RouteDataArgs, useParams, useRouteData } from 'solid-start'
+import { createServerData$ } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
+import { prisma } from '~/lib/prisma'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
+
+export const routeData = ({ params }: RouteDataArgs) => {
+  return createServerData$(
+    async ([, userId], { request }) => {
+      return prisma.donation.findMany({ where: { userId } })
+    },
+    { key: () => ['donations', params.id] },
+  )
+}
 
 export default function User() {
   const params = useParams()
@@ -31,6 +42,13 @@ export default function User() {
   }>()
 
   const [showUploadModal, setShowUploadModal] = createSignal<boolean>()
+
+  const donations = useRouteData<typeof routeData>()
+  const isPremiumUser = () => {
+    if (!donations()) return
+
+    return donations()?.length > 0
+  }
 
   const onCheckbox: JSX.EventHandler<HTMLInputElement, MouseEvent> = async (e) => {
     const checked = e.currentTarget.checked
@@ -166,7 +184,7 @@ export default function User() {
     if (!username) return
 
     const resp = await (await fetch(`/api/v1/user/${username}/search`)).json()
-    console.log(resp)
+
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, username: resp.username })
   }
@@ -195,7 +213,24 @@ export default function User() {
 
   return (
     <main>
-      <div class='mt-4 inline-flex rounded-lg border p-4 shadow'>User {params.id}</div>
+      <section class='mt-4 flex w-fit flex-col rounded-lg border p-4 shadow'>
+        <div class='mb-2 flex'>
+          <Icon path={userCircle} class='mr-2 h-6 w-6' />
+          <span>{params.id}</span>
+        </div>
+        {isPremiumUser() ? (
+          <div class='flex text-blue-500'>
+            <Icon path={checkBadge} class='mr-2 h-6 w-6 text-inherit' />
+            <span>Premium member</span>
+          </div>
+        ) : (
+          <div class='flex text-red-500'>
+            <Icon path={xCircle} class='mr-2 h-6 w-6 text-inherit' />
+            <span>To unlock the search and upload feature, make a one time donation!</span>
+          </div>
+        )}
+      </section>
+
       <div class='my-4 rounded-lg border border-red-400 p-4 text-red-500 shadow'>
         <Icon path={exclamationCircle} class='mb-4 h-6 w-6 text-inherit' />
         <p class='mb-2'>
@@ -250,7 +285,7 @@ export default function User() {
         <button
           onClick={() => setShowUploadModal(true)}
           class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
-          disabled={false}
+          disabled={!isPremiumUser()}
           title='Delete tweets'
         >
           Upload Csv
@@ -259,8 +294,7 @@ export default function User() {
         <form onSubmit={onSubmit} id='username-search-form'>
           <div class='inline-flex rounded'>
             <input
-              // make this a paid feature
-              disabled={false}
+              disabled={!isPremiumUser()}
               type='text'
               id='username-field'
               name='username'
@@ -269,7 +303,7 @@ export default function User() {
               title='Search a username'
             />
             <button
-              disabled={false}
+              disabled={!isPremiumUser()}
               type='submit'
               title='Search'
               class='w-20 rounded-r py-1 px-2 text-white enabled:bg-blue-500 enabled:hover:bg-blue-600 disabled:bg-gray-500 disabled:opacity-50'

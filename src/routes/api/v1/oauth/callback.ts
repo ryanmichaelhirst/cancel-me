@@ -10,7 +10,6 @@ export async function GET({ params, request }: APIEvent) {
   if (!query) return json({ error: 'no query to parse' })
 
   const searchParams = querystring.parse(query)
-  console.log(searchParams)
 
   try {
     const { oauth_token, oauth_verifier } = searchParams

@@ -1,6 +1,6 @@
 import { Icon } from 'solid-heroicons'
 import { archiveBox, chatBubbleLeftRight, magnifyingGlassCircle } from 'solid-heroicons/outline'
-import type { JSX } from 'solid-js'
+import { JSX } from 'solid-js'
 import { Title } from 'solid-start'
 
 export default function Index() {

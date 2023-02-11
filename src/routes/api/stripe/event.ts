@@ -1,11 +1,10 @@
 import type { Prisma } from '@prisma/client'
-import { buffer } from 'micro'
 import { APIEvent, json } from 'solid-start/api'
 import { prisma } from '~/lib/prisma'
 import { stripe } from '~/lib/stripe'
 import { StripeError, StripeEvent } from '~/types'
 
-const signingSecret = 'whsec_kDjlRYWcVauhY4JMt1atVTL0cRYyz61Y'
+const signingSecret = 'whsec_SFhrWZffCmKZyMysBJrXoEC6vric2ZKc'
 
 const isStripeError = (err: unknown): err is StripeError =>
   typeof err === 'object' && err !== null && 'message' in err
@@ -40,7 +39,7 @@ const saveStripeDonation = async (event: StripeEvent) => {
 }
 
 export async function POST({ params, request }: APIEvent) {
-  if (request.method !== 'post') {
+  if (request.method !== 'POST') {
     return new Response('Not allowed', { status: 401 })
   }
 
@@ -53,11 +52,10 @@ export async function POST({ params, request }: APIEvent) {
   }
 
   try {
-    const buf = await buffer(request)
-    event = stripe.webhooks.constructEvent(buf, sig, signingSecret) as StripeEvent
+    const requestText = await request.text()
+    event = stripe.webhooks.constructEvent(requestText, sig, signingSecret) as StripeEvent
   } catch (err) {
     const errMessage = isStripeError(err) ? err.message : err
-    console.log(errMessage)
 
     return new Response('Could not construct event', { status: 500 })
   }

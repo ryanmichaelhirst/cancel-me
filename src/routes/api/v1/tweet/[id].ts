@@ -8,7 +8,6 @@ export async function DELETE(event: APIEvent) {
     const resp = await twitterLite.client.post('statuses/destroy', {
       id: params.id,
     })
-    console.log(resp)
 
     return json(resp)
   } catch (err) {

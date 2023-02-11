@@ -1,9 +1,6 @@
 import dotenv from 'dotenv'
-import fs from 'fs'
 import { auth, Client } from 'twitter-api-sdk'
-
-const fileContents = fs.readFileSync('./src/files/profanities.txt', 'utf-8')
-const badWords = fileContents.split('\n')
+import badWords from '~/word-lists/profanities'
 
 dotenv.config()
 

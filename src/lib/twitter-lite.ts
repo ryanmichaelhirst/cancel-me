@@ -14,7 +14,7 @@ import strongestWords from '~/word-lists/strongest'
 
 class TwitterLite {
   public client: Twitter
-  public credentials: Record<string, unknown> | undefined
+  public credentials: { id_str: string; email: string; id: number } | undefined
   private profanities: string[]
   private mildWords: string[]
   private mediumWords: string[]
@@ -92,7 +92,7 @@ class TwitterLite {
     })
   }
 
-  setCredentials(credentials: any) {
+  setCredentials(credentials?: any) {
     this.credentials = credentials
   }
 
