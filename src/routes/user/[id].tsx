@@ -10,17 +10,13 @@ import { Page } from '~/components/page'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
-import { prisma } from '~/lib/prisma'
-import { twitterLite } from '~/lib/twitter-lite'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
+import { credentials, donations } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(
     async ([, userId], { request }) => {
-      const credentials = twitterLite.credentials
-      const donations = prisma.donation.findMany({ where: { userId } })
-
-      return { credentials, donations }
+      return { credentials: credentials(), donations: donations({ userId }) }
     },
     { key: () => ['donations', params.id] },
   )

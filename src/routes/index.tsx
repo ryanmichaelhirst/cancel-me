@@ -4,15 +4,14 @@ import { JSX } from 'solid-js'
 import { RouteDataArgs, Title, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { Page } from '~/components/page'
-import { twitterLite } from '~/lib/twitter-lite'
+import { credentials } from '~/util'
 import { getProducts } from '~/util/products'
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(async () => {
-    const credentials = twitterLite.credentials
     const products = await getProducts()
 
-    return { credentials, products }
+    return { credentials: credentials(), products }
   })
 }
 
