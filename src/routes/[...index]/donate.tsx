@@ -57,42 +57,44 @@ export default function Donate() {
             Please <span class='font-bold text-blue-500'>login</span> to make a donation!
           </button>
         )}
-        {data()?.products.map((p) => (
-          <div
-            class={classNames(
-              'flex-1 rounded bg-white',
-              !data()?.credentials && 'cursor-not-allowed opacity-50',
-            )}
-          >
-            <div class='flex items-center rounded-t border border-b-0 border-solid p-3 shadow'>
-              <img
-                src={p.images[0]}
-                alt={`Image for ${p.name}`}
-                width='60'
-                height='80'
-                class='mr-10'
-              />
-              <div>
-                <h3>{p.name}</h3>
-                <h5>{p.dollarAmount}</h5>
+        <div>
+          {data()?.products.map((p) => (
+            <div
+              class={classNames(
+                'mb-4 flex-1 rounded bg-white',
+                !data()?.credentials && 'cursor-not-allowed opacity-50',
+              )}
+            >
+              <div class='flex items-center rounded-t border border-b-0 border-solid p-3 shadow'>
+                <img
+                  src={p.images[0]}
+                  alt={`Image for ${p.name}`}
+                  width='60'
+                  height='80'
+                  class='mr-10'
+                />
+                <div>
+                  <h3>{p.name}</h3>
+                  <h5>{p.dollarAmount}</h5>
+                </div>
+              </div>
+              <div class='rounded-b border border-b border-t-0 border-solid bg-gray-200 p-3 hover:bg-gray-300'>
+                <form action='/api/stripe/checkout' method='post'>
+                  <input name='productId' value={p.id} hidden={true} />
+                  <input name='userId' value={data()?.credentials?.id_str} hidden={true} />
+                  <input name='email' value='test@gmail.com' hidden={true} />
+                  <button
+                    type='submit'
+                    class='w-full text-left disabled:cursor-not-allowed'
+                    disabled={!data()?.credentials}
+                  >
+                    Checkout
+                  </button>
+                </form>
               </div>
             </div>
-            <div class='rounded-b border border-b border-t-0 border-solid bg-gray-200 p-3 hover:bg-gray-300'>
-              <form action='/api/stripe/checkout' method='post'>
-                <input name='productId' value={p.id} hidden={true} />
-                <input name='userId' value={data()?.credentials?.id_str} hidden={true} />
-                <input name='email' value='test@gmail.com' hidden={true} />
-                <button
-                  type='submit'
-                  class='w-full text-left disabled:cursor-not-allowed'
-                  disabled={!data()?.credentials}
-                >
-                  Checkout
-                </button>
-              </form>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </section>
     </Page>
   )
