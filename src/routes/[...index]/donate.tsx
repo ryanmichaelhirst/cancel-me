@@ -81,7 +81,7 @@ export default function Donate() {
                 <form action='/api/stripe/checkout' method='post'>
                   <input name='productId' value={p.id} hidden={true} />
                   <input name='userId' value={data()?.credentials?.id_str} hidden={true} />
-                  <input name='email' value='test@gmail.com' hidden={true} />
+                  <input name='email' value={data()?.credentials?.email} hidden={true} />
                   <button
                     type='submit'
                     class='w-full text-left disabled:cursor-not-allowed'
