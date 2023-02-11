@@ -1,10 +1,55 @@
-import { deleteTweetById, TwitterResponse, usersIdTweets } from 'twitter-api-sdk/dist/types'
+import type Stripe from 'stripe'
 
-export type UserUsernameTweetsResponse = TwitterResponse<usersIdTweets>
+// type TwitterTweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
+export type Tweet = {
+  text: string
+  created_at: string
+  id: number
+  id_str: string
+  isProfanity?: boolean
+}
 
-type TwitterTweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
-export type Tweet = TwitterTweet & { isProfanity?: boolean }
+export interface ProfanityMetrics {
+  mild: number
+  medium: number
+  strong: number
+  strongest: number
+  safe: number
+  unrated: number
+}
 
-export type DeleteTweetResponse = TwitterResponse<deleteTweetById>
+export type Product = Stripe.Product & { dollarAmount: string }
 
-export type UserIdTweetsResponse = TwitterResponse<usersIdTweets>
+export interface StripeEvent {
+  id: string
+  object: 'event'
+  api_version: string
+  created: number
+  data: {
+    object: {
+      id: string
+      object: 'checkout.session'
+      amount_subtotal: number
+      amount_total: number
+      customer_email?: string | null
+      metadata: {
+        productId: string
+        productName: string
+        userId: string
+      }
+      payment_status: 'paid'
+      status: 'complete'
+    }
+  }
+  livemode: boolean
+  pending_webhooks: number
+  request: {
+    id: string | null
+    idempotency_key: string | null
+  }
+  type: 'checkout.session.completed' | 'payment_intent.succeeded'
+}
+
+export interface StripeError {
+  message: string
+}

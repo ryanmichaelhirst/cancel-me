@@ -10,14 +10,14 @@ export const Tweet = (props: {
   onCheckbox: any
   checked: boolean
 }) => (
-  <tr id={props.tweet.id} class='mb-4 border-b border-gray-200 pb-2 text-slate-800'>
+  <tr id={props.tweet.id_str} class='mb-4 border-b border-gray-200 pb-2 text-slate-800'>
     <td>
       <input
         type='checkbox'
         id='selected'
         name='selected'
         checked={props.checked}
-        value={props.tweet.id}
+        value={props.tweet.id_str}
         onChange={props.onCheckbox}
       />
       <label for='selected' hidden>
@@ -34,7 +34,7 @@ export const Tweet = (props: {
     <td class='flex'>
       <div class='space-x-3'>
         <button
-          id={props.tweet.id}
+          id={props.tweet.id_str}
           title='Delete tweet'
           onClick={props.onDelete}
           class='text-blue-500 hover:text-blue-800'
@@ -44,7 +44,7 @@ export const Tweet = (props: {
         <button
           title='View tweet'
           // https://developer.twitter.com/en/blog/community/2020/getting-to-the-canonical-url-for-a-tweet
-          onClick={() => window.open(`https://twitter.com/twitter/status/${props.tweet.id}`)}
+          onClick={() => window.open(`https://twitter.com/twitter/status/${props.tweet.id_str}`)}
           class='text-blue-500 hover:text-blue-800'
         >
           <Icon path={link} class='h-6 w-6 text-inherit' />

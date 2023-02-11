@@ -5,6 +5,27 @@ body {
   min-height: 100vh;
 }
 
+/* On screens that are 768px or less */
+@media screen and (min-width: 768px) {
+  body {
+    margin: 0px 40px;
+  }
+}
+
+/* On screens that are 1024px or less */
+@media screen and (min-width: 1024px) {
+  body {
+    margin: 0px 120px;
+  }
+}
+
+/* On screens that are 1280px or less */
+@media screen and (min-width: 1280px) {
+  body {
+    margin: 0px 200px;
+  }
+}
+
 @tailwind components;
 
 /** loading spinner */

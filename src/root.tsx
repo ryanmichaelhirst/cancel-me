@@ -11,8 +11,7 @@ import {
   Scripts,
   Title,
 } from 'solid-start'
-import { Navbar } from './components/nav-bar'
-import './root.css'
+import './tailwind.css'
 
 export default function Root() {
   return (
@@ -26,7 +25,6 @@ export default function Root() {
       <Body>
         <Suspense>
           <ErrorBoundary>
-            <Navbar />
             <Routes>
               <FileRoutes />
             </Routes>

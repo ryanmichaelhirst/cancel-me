@@ -1,10 +1,25 @@
 import classNames from 'classnames'
-import { createEffect, createSignal, For, JSX, Show } from 'solid-js'
-import { useParams } from 'solid-start'
+import { Icon } from 'solid-heroicons'
+import { checkBadge, exclamationCircle, userCircle, xCircle } from 'solid-heroicons/outline'
+import { createSignal, For, JSX, onMount, Show } from 'solid-js'
+import { RouteDataArgs, useParams, useRouteData } from 'solid-start'
+import { createServerData$ } from 'solid-start/server'
+import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
+import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
-import type { Tweet as TweetRecord, UserUsernameTweetsResponse } from '~/types'
+import { prisma } from '~/lib/prisma'
+import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
+
+export const routeData = ({ params }: RouteDataArgs) => {
+  return createServerData$(
+    async ([, userId], { request }) => {
+      return prisma.donation.findMany({ where: { userId } })
+    },
+    { key: () => ['donations', params.id] },
+  )
+}
 
 export default function User() {
   const params = useParams()
@@ -21,6 +36,20 @@ export default function User() {
 
   const [error, setError] = createSignal<string>()
 
+  const [profanityMetrics, setProfanityMetrics] = createSignal<{
+    metrics: ProfanityMetrics
+    username: string
+  }>()
+
+  const [showUploadModal, setShowUploadModal] = createSignal<boolean>()
+
+  const donations = useRouteData<typeof routeData>()
+  const isPremiumUser = () => {
+    if (!donations()) return
+
+    return donations()?.length > 0
+  }
+
   const onCheckbox: JSX.EventHandler<HTMLInputElement, MouseEvent> = async (e) => {
     const checked = e.currentTarget.checked
     const value = e.currentTarget.value
@@ -29,9 +58,10 @@ export default function User() {
     else setSelectedTweetIds((prev) => prev.filter((tweetId) => tweetId !== value))
   }
 
-  createEffect(async () => {
+  onMount(async () => {
     setLoadingTweets(true)
-    const data = await (await fetch('/api/current-user/tweets?paginate=false')).json()
+    const data = await (await fetch(`/api/v1/user/${params.id}/tweets`)).json()
+    // const resp = await (await fetch(`/api/v1/user/${params.id}/rate_limit_status`)).json()
 
     setTweets(data)
     setLoadingTweets(false)
@@ -39,7 +69,7 @@ export default function User() {
 
   const onShowAllTweets = async () => {
     setLoadingTweets(true)
-    const data = await (await fetch('/api/current-user/tweets?paginate=true')).json()
+    const data = await (await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)).json()
 
     setTweets(data)
     setLoadingTweets(false)
@@ -53,7 +83,7 @@ export default function User() {
       setSelectedTweetIds([])
       setIsSelectAll(false)
     } else {
-      setSelectedTweetIds(currentTweets.map((tweet) => tweet.id))
+      setSelectedTweetIds(currentTweets.map((tweet) => tweet.id_str))
       setIsSelectAll(true)
     }
   }
@@ -87,27 +117,31 @@ export default function User() {
     setShowProgressModal(true)
 
     const responses = []
-    // create an array where each element is an array of 40 tweet ids to delete
+    // create an array where each element is an array of 150 tweet ids to delete
     const batches: string[][] = []
-    const batchSize = 40
+    const batchSize = 150
+    const uniqueSelectedTweetIds = [...new Set(selectedTweetIds())]
 
-    for (let ii = 0; ii < selectedTweetIds().length; ii += batchSize) {
-      const batch = selectedTweetIds().slice(ii, ii + batchSize)
+    for (let ii = 0; ii < uniqueSelectedTweetIds.length; ii += batchSize) {
+      const batch = uniqueSelectedTweetIds.slice(ii, ii + batchSize)
       batches.push(batch)
     }
 
-    // delete 40 tweets every 15 minutes to avoid being rate limited
+    // delete tweets in batches
+    let counter = 0
     for (const ids of batches) {
       if (error()) break
 
       for (const id of ids) {
+        counter++
         if (error()) break
 
         const resp = await (
-          await fetch(`/api/current-user/tweet/${id}`, {
+          await fetch(`/api/v1/tweet/${id}`, {
             method: 'DELETE',
           })
         ).json()
+        console.log(resp, counter)
 
         if (resp.error) {
           setError(
@@ -121,12 +155,15 @@ export default function User() {
         responses.push(resp)
       }
 
-      await new Promise((resolve) => setTimeout(() => resolve(null), 1500000))
+      // delay for 15 mins if we are deleting more than 150 tweets
+      // if (selectedTweetIds().length >= 150) {
+      //   await new Promise((resolve) => setTimeout(() => resolve(null), 1500000))
+      // }
     }
 
     if (error()) return
 
-    setTweets((prev) => prev.filter((tweet) => !selectedTweetIds().includes(tweet.id)))
+    setTweets((prev) => prev.filter((tweet) => !selectedTweetIds().includes(tweet.id_str)))
     setSelectedTweetIds([])
   }
 
@@ -142,19 +179,28 @@ export default function User() {
     const form = document.getElementById('username-search-form') as HTMLFormElement | null
     if (!form) return
 
-    const formData = Object.fromEntries(new FormData(form).entries())
-    const username = formData['username'] as string
+    const formData = new FormData(form)
+    const username = formData.get('username')?.toString()
     if (!username) return
 
-    const resp: UserUsernameTweetsResponse = await (
-      await fetch(`/api/user/${username}/tweets`)
-    ).json()
-    setTweets(resp.data ?? [])
+    const resp = await (await fetch(`/api/v1/user/${username}/search`)).json()
+
+    setTweets(resp.tweets)
+    setProfanityMetrics({ metrics: resp.metrics, username: resp.username })
   }
 
   const onTabChange: JSX.EventHandler<HTMLDivElement, Event> = (e) => {
     const tab = e.currentTarget.innerText
     setSelectedTab(tab)
+  }
+
+  const onUpload = (resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics }) => {
+    setTweets(resp.tweets)
+    setProfanityMetrics({
+      metrics: resp.metrics,
+      username: '',
+    })
+    setShowUploadModal(false)
   }
 
   const filteredTweets = () => {
@@ -167,8 +213,59 @@ export default function User() {
 
   return (
     <main>
-      <div>User {params.id}</div>
-      <section class='flex place-content-evenly items-center'>
+      <section class='mt-4 flex w-fit flex-col rounded-lg border p-4 shadow'>
+        <div class='mb-2 flex'>
+          <Icon path={userCircle} class='mr-2 h-6 w-6' />
+          <span>{params.id}</span>
+        </div>
+        {isPremiumUser() ? (
+          <div class='flex text-blue-500'>
+            <Icon path={checkBadge} class='mr-2 h-6 w-6 text-inherit' />
+            <span>Premium member</span>
+          </div>
+        ) : (
+          <div class='flex text-red-500'>
+            <Icon path={xCircle} class='mr-2 h-6 w-6 text-inherit' />
+            <span>To unlock the search and upload feature, make a one time donation!</span>
+          </div>
+        )}
+      </section>
+
+      <div class='my-4 rounded-lg border border-red-400 p-4 text-red-500 shadow'>
+        <Icon path={exclamationCircle} class='mb-4 h-6 w-6 text-inherit' />
+        <p class='mb-2'>
+          Due to the nature of Twitter's api, you are only able to delete your most recent 3200
+          tweets
+        </p>
+        <p class='mb-2'>
+          If you would like to delete more tweets, please download a csv of all your tweets{' '}
+          <a class='text-blue-500' href='https://twitter.com/settings/download_your_data'>
+            here
+          </a>{' '}
+          and click the Upload button.
+        </p>
+        <p>
+          You can find more information on this{' '}
+          <a
+            class='text-blue-500'
+            href='https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline'
+          >
+            here
+          </a>
+          .
+        </p>
+      </div>
+
+      {profanityMetrics() && (
+        <section>
+          <ProfanityScoreCard
+            metrics={profanityMetrics()?.metrics}
+            username={profanityMetrics()?.username}
+          />
+        </section>
+      )}
+
+      <section class='flex items-center justify-between'>
         <button
           onClick={onShowAllTweets}
           class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
@@ -184,11 +281,20 @@ export default function User() {
         >
           Delete tweets
         </button>
+        {/* make this a paid feature */}
+        <button
+          onClick={() => setShowUploadModal(true)}
+          class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
+          disabled={!isPremiumUser()}
+          title='Delete tweets'
+        >
+          Upload Csv
+        </button>
+
         <form onSubmit={onSubmit} id='username-search-form'>
           <div class='inline-flex rounded'>
             <input
-              // make this a paid feature ($5)
-              disabled={true}
+              disabled={!isPremiumUser()}
               type='text'
               id='username-field'
               name='username'
@@ -197,7 +303,7 @@ export default function User() {
               title='Search a username'
             />
             <button
-              disabled={true}
+              disabled={!isPremiumUser()}
               type='submit'
               title='Search'
               class='w-20 rounded-r py-1 px-2 text-white enabled:bg-blue-500 enabled:hover:bg-blue-600 disabled:bg-gray-500 disabled:opacity-50'
@@ -207,6 +313,7 @@ export default function User() {
           </div>
         </form>
       </section>
+
       <section class='mt-10 rounded border border-solid border-blue-200 p-4'>
         {loadingTweets() ? (
           <div class='flex flex-col items-center justify-center'>
@@ -275,7 +382,7 @@ export default function User() {
                         tweet={tweet}
                         idx={idx()}
                         onDelete={onDelete}
-                        checked={selectedTweetIds().includes(tweet.id)}
+                        checked={selectedTweetIds().includes(tweet.id_str)}
                         onCheckbox={onCheckbox}
                       />
                     )}
@@ -327,11 +434,13 @@ export default function User() {
             <p class='mb-4'>
               Adding your delete requests to the queue. Due to API restrictions it may take up to 24
               hours to delete each tweet you selected. Please keep this page open until the
-              operation is finished.
+              operation is finished. 40 tweets will be deleted every 15 minutes.
             </p>
             <ProgressBar
               id='delete-tweet-progress'
-              label={`${progress()} / ${selectedTweetIds().length} queued`}
+              label={`${progress()} / ${
+                selectedTweetIds().length === 0 ? progress() : selectedTweetIds().length
+              } completed`}
               value={progress()}
               max={selectedTweetIds().length}
             />
@@ -346,6 +455,13 @@ export default function User() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      </Show>
+      <Show when={showUploadModal()}>
+        <div class='modal'>
+          <div class='modal-content'>
+            <FileUpload onUpload={onUpload} />
           </div>
         </div>
       </Show>

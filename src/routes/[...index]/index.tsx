@@ -1,11 +1,11 @@
 import { Icon } from 'solid-heroicons'
 import { archiveBox, chatBubbleLeftRight, magnifyingGlassCircle } from 'solid-heroicons/outline'
-import type { JSX } from 'solid-js'
+import { JSX } from 'solid-js'
 import { Title } from 'solid-start'
 
 export default function Index() {
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
-    const resp = await (await fetch(`/api/oauth/login`)).json()
+    const resp = await (await fetch(`/api/v1/oauth/login`)).json()
 
     window.open(resp.authUrl, '_self')
   }
@@ -89,7 +89,7 @@ export default function Index() {
       </section>
 
       <section class='mt-20'>
-        <div class='-mx-[40px] bg-blue-500 px-[40px] py-4'>
+        <div class='-mx-[40px] bg-blue-500 px-[40px] py-4 lg:-mx-[120px] lg:px-[120px] xl:-mx-[200px] xl:px-[200px]'>
           <p class='text-2xl text-white'>I'm convinced</p>
           <p class='mb-4 text-3xl text-slate-900'>Please show me the cringe</p>
           <button
