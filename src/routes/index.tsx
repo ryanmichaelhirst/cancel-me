@@ -7,11 +7,14 @@ import { Page } from '~/components/page'
 import { getProducts } from '~/util/products'
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  return createServerData$(async () => {
-    const products = await getProducts()
+  return createServerData$(
+    async () => {
+      const products = await getProducts()
 
-    return { credentials: undefined, products }
-  })
+      return { credentials: undefined, products }
+    },
+    { deferStream: true },
+  )
 }
 
 export type useLayoutRouteData = typeof routeData

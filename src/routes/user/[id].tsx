@@ -18,7 +18,7 @@ export const routeData = ({ params }: RouteDataArgs) => {
     async ([, userId], { request }) => {
       return { credentials: undefined, donations: donations({ userId }) }
     },
-    { key: () => ['donations', params.id] },
+    { key: () => ['donations', params.id], deferStream: true },
   )
 }
 
