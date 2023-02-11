@@ -4,17 +4,11 @@ import { JSX } from 'solid-js'
 import { RouteDataArgs, Title, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { Page } from '~/components/page'
-import { getProducts } from '~/util/products'
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  return createServerData$(
-    async () => {
-      const products = await getProducts()
-
-      return { credentials: undefined, products }
-    },
-    { deferStream: true },
-  )
+  return createServerData$(async () => {
+    return { credentials: undefined, products: [] }
+  })
 }
 
 export type useLayoutRouteData = typeof routeData

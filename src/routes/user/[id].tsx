@@ -11,14 +11,13 @@ import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
-import { donations } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(
     async ([, userId], { request }) => {
-      return { credentials: undefined, donations: donations({ userId }) }
+      return { credentials: undefined, donations: [] }
     },
-    { key: () => ['donations', params.id], deferStream: true },
+    { key: () => ['donations', params.id] },
   )
 }
 
