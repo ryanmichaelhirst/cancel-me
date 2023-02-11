@@ -213,7 +213,7 @@ export default function User() {
   }
 
   return (
-    <Page credentials={data()?.credentials}>
+    <Page>
       <section class='mt-4 flex w-fit flex-col rounded-lg border p-4 shadow'>
         <div class='mb-2 flex'>
           <Icon path={userCircle} class='mr-2 h-6 w-6' />

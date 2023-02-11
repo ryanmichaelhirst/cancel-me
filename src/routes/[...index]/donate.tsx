@@ -4,10 +4,11 @@ import { arrowDownTray, arrowUpTray, magnifyingGlassCircle } from 'solid-heroico
 import { JSX } from 'solid-js'
 import { Title, useRouteData } from 'solid-start'
 import { Page } from '~/components/page'
-import { useLayoutRouteData } from '~/routes'
+import { useLayoutRouteData } from '~/routes/[...index]'
 
 export default function Donate() {
   const data = useRouteData<useLayoutRouteData>()
+  console.log(data())
 
   const onLogin: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     const resp = await (await fetch(`/api/v1/oauth/login`)).json()
@@ -16,7 +17,7 @@ export default function Donate() {
   }
 
   return (
-    <Page credentials={data()?.credentials}>
+    <Page>
       <Title>Donate - Stripe</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Donate</h1>
 

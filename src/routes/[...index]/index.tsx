@@ -1,20 +1,11 @@
 import { Icon } from 'solid-heroicons'
 import { archiveBox, chatBubbleLeftRight, magnifyingGlassCircle } from 'solid-heroicons/outline'
 import { JSX } from 'solid-js'
-import { RouteDataArgs, Title, useRouteData } from 'solid-start'
-import { createServerData$ } from 'solid-start/server'
+import { Title, useRouteData } from 'solid-start'
 import { Page } from '~/components/page'
-import { credentials } from '~/util'
+import { useLayoutRouteData } from '~/routes/[...index]'
 
-export const routeData = ({ params }: RouteDataArgs) => {
-  return createServerData$(async () => {
-    return { credentials: credentials(), products: [] }
-  })
-}
-
-export type useLayoutRouteData = typeof routeData
-
-export default function Layout() {
+export default function Index() {
   const data = useRouteData<useLayoutRouteData>()
 
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
@@ -24,7 +15,7 @@ export default function Layout() {
   }
 
   return (
-    <Page credentials={data()?.credentials}>
+    <Page>
       <Title>Home - Cancel Me</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Time to cancel yourself</h1>
 
