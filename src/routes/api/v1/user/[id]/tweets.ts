@@ -55,10 +55,16 @@ export async function GET({ params, request }: APIEvent) {
       const newMaxId = getLowestId(resp)
       console.log(`newMaxId: ${newMaxId} - maxId: ${maxId}`)
 
-      if (newMaxId.toString() === 'Infinity') {
+      // fixes this vercel function error
+      // [ERROR] [1676162159910] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+      if (data.length >= 2000) {
+        console.log('tweet limit reached', data.length)
+        maxId = null
+      } else if (newMaxId.toString() === 'Infinity') {
         console.log('newMaxId is Infinity')
         maxId = null
       } else if (newMaxId === maxId) {
+        console.log('both maxId are equal')
         maxId = null
       } else {
         maxId = newMaxId
