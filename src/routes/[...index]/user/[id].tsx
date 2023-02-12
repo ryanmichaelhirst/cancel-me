@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import { Icon } from 'solid-heroicons'
 import { checkBadge, exclamationCircle, userCircle, xCircle, xMark } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
-import { RouteDataArgs, useParams, useRouteData, useSearchParams } from 'solid-start'
+import { RouteDataArgs, Title, useParams, useRouteData, useSearchParams } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
@@ -242,6 +242,9 @@ export default function User() {
 
   return (
     <Page>
+      <Title>Dashboard</Title>
+      <h1 class='mt-10 text-5xl text-blue-800'>Dashboard</h1>
+
       {searchParams.transaction && (
         <section>
           {searchParams.transaction === 'completed' && (
