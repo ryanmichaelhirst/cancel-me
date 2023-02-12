@@ -57,7 +57,7 @@ export async function GET({ params, request }: APIEvent) {
 
       // fixes this vercel function error
       // [ERROR] [1676162159910] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
-      if (data.length >= 2000) {
+      if (data.length >= 1000) {
         console.log('tweet limit reached', data.length)
         maxId = null
       } else if (newMaxId.toString() === 'Infinity') {
