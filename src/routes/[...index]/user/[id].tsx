@@ -88,7 +88,7 @@ export default function User() {
       await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)
     ).json()
     // const resp = await (await fetch(`/api/v1/user/${params.id}/rate_limit_status`)).json()
-    console.log(metrics)
+    console.log(tweets, metrics)
 
     setTweets(tweets)
 

@@ -1,3 +1,4 @@
+import pick from 'lodash.pick'
 import querystring from 'querystring'
 import { APIEvent, json } from 'solid-start'
 import url from 'url'
@@ -26,7 +27,7 @@ export const getUserTweets = async ({ userId, maxId }: { userId: string; maxId?:
     const isProfanity = twitterLite.isContainProfanity(tweet.text)
 
     return {
-      ...tweet,
+      ...pick(tweet, ['text', 'created_at', 'id', 'id_str']),
       isProfanity,
     }
   })
