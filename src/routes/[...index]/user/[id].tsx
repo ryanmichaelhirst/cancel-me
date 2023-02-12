@@ -91,7 +91,11 @@ export default function User() {
     console.log(metrics)
 
     setTweets(tweets)
-    setProfanityMetrics({ metrics, screenname: data()?.credentials?.screen_name })
+
+    if (metrics) {
+      setProfanityMetrics({ metrics, screenname: data()?.credentials?.screen_name })
+    }
+
     setLoadingTweets(false)
   })
 
