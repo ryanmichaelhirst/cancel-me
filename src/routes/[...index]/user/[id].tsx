@@ -59,7 +59,10 @@ export default function User() {
 
   const [error, setError] = createSignal<string>()
 
-  const [profanityMetrics, setProfanityMetrics] = createSignal<ProfanityMetrics>()
+  const [profanityMetrics, setProfanityMetrics] = createSignal<{
+    metrics?: ProfanityMetrics
+    screenname?: string
+  }>()
 
   const [showUploadModal, setShowUploadModal] = createSignal<boolean>()
 
@@ -88,7 +91,7 @@ export default function User() {
     console.log(metrics)
 
     setTweets(tweets)
-    setProfanityMetrics(metrics)
+    setProfanityMetrics({ metrics, screenname: data()?.credentials?.screen_name })
     setLoadingTweets(false)
   })
 
@@ -209,7 +212,7 @@ export default function User() {
     const resp = await (await fetch(`/api/v1/user/${username}/search`)).json()
 
     setTweets(resp.tweets)
-    setProfanityMetrics(resp.metrics)
+    setProfanityMetrics({ metrics: resp.metrics, screenname: username })
   }
 
   const onTabChange: JSX.EventHandler<HTMLDivElement, Event> = (e) => {
@@ -219,7 +222,7 @@ export default function User() {
 
   const onUpload = (resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics }) => {
     setTweets(resp.tweets)
-    setProfanityMetrics(resp.metrics)
+    setProfanityMetrics({ metrics: resp.metrics, screename: data()?.credentials?.screen_name })
     setShowUploadModal(false)
   }
 
@@ -322,8 +325,8 @@ export default function User() {
       {profanityMetrics() && (
         <section>
           <ProfanityScoreCard
-            metrics={profanityMetrics()}
-            username={data()?.credentials?.screen_name}
+            metrics={profanityMetrics()?.metrics}
+            username={profanityMetrics()?.screenname}
           />
         </section>
       )}

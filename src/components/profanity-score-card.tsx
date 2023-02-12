@@ -33,7 +33,11 @@ const MetricCount = (props: any) => {
 
 export const ProfanityScoreCard = (props: any) => {
   const numProfanities = () =>
-    props.metrics.mild + props.metrics.medium + props.metrics.strong + props.metrics.strongest
+    props.metrics.mild +
+    props.metrics.medium +
+    props.metrics.strong +
+    props.metrics.strongest +
+    props.metrics.unrated
   const score = (() => {
     if (numProfanities() <= 10) return 'Devout Mormon'
     if (numProfanities() <= 50) return 'Knows a few bad words'
