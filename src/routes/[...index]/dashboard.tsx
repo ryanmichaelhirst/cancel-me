@@ -269,7 +269,7 @@ export default function User() {
                 href='https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline'
               >
                 Twitter api restrictions
-              </a>{' '}
+              </a>
               , you can only delete your 3200 most recent tweets. You can delete all of your tweets
               by making a donation{' '}
               <A href='/donate' class='text-blue-500'>

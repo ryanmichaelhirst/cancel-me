@@ -21,7 +21,7 @@ const ColorBar = (props: { metric: number; total: number; title: string; bgColor
   return (
     <div
       title={props.title}
-      class={classNames('h-4 rounded', props.bgColor)}
+      class={classNames('h-4 rounded hover:cursor-pointer', props.bgColor)}
       style={{ width: `${Math.round((props.metric / props.total) * width)}px` }}
     />
   )
@@ -31,7 +31,7 @@ const MetricCount = (props: any) => {
   return (
     <div>
       <p class={classNames('text-center text-sm', props.bgColor)}>{props.title}</p>
-      <div class='flex'>
+      <div class='flex justify-center'>
         {props.icon && (
           <Icon path={props.icon} class={classNames('h-6 w-6 text-inherit', props.bgColor)} />
         )}
@@ -123,7 +123,7 @@ export const ProfanityScoreCard = (props: any) => {
               bgColor='text-green-600'
             />
             <MetricCount
-              title='Unrated'
+              title='Uncategorized'
               icon={questionMarkCircle}
               metric={props.metrics.unrated}
               bgColor='text-slate-500'
@@ -166,7 +166,7 @@ export const ProfanityScoreCard = (props: any) => {
           bgColor='bg-green-600'
         />
         <ColorBar
-          title='Unrated tweets'
+          title='Uncategorized tweets'
           metric={props.metrics.unrated}
           total={numProfanities()}
           bgColor='bg-slate-300'
