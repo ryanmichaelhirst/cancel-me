@@ -1,20 +1,27 @@
+import { A } from '@solidjs/router'
 import classNames from 'classnames'
 import { Icon } from 'solid-heroicons'
 import {
+  checkBadge,
   exclamationTriangle,
   faceFrown,
   faceSmile,
   fire,
   handThumbUp,
   questionMarkCircle,
+  xCircle,
 } from 'solid-heroicons/outline'
+import { useRouteData } from 'solid-start'
+import { useDashboardRouteData } from '~/routes/[...index]/user/[id]'
 
-const ColorBar = (props: { metric: number; title: string; bgColor: string }) => {
+const ColorBar = (props: { metric: number; total: number; title: string; bgColor: string }) => {
+  const width = window.document.getElementById('color-bar-container')?.clientWidth ?? 100
+
   return (
     <div
       title={props.title}
       class={classNames('mr-2 h-6 rounded', props.bgColor)}
-      style={{ width: `${props.metric}px` }}
+      style={{ width: `${Math.round((props.metric / props.total) * width)}px` }}
     />
   )
 }
@@ -32,6 +39,14 @@ const MetricCount = (props: any) => {
 }
 
 export const ProfanityScoreCard = (props: any) => {
+  const data = useRouteData<useDashboardRouteData>()
+  const isPremiumUser = () => {
+    if (!data()?.donations || typeof data()?.donations === 'undefined') return
+
+    // @ts-expect-error data().donations marked as possibly undefined?
+    return data()?.donations.length > 0
+  }
+
   const numProfanities = () =>
     props.metrics.mild +
     props.metrics.medium +
@@ -50,22 +65,67 @@ export const ProfanityScoreCard = (props: any) => {
 
   return (
     <div class='mb-10 rounded border py-2 px-6 shadow-lg'>
-      <p class='text-lg text-slate-500'>{props.username}</p>
-      <p class='text-xl text-slate-800'>{numProfanities()} profane tweets</p>
-      <p class='text-2xl text-slate-900'>{score}</p>
-      <div class='mt-4 flex'>
-        <ColorBar title='Mild tweets' metric={props.metrics.mild} bgColor='bg-yellow-300' />
-        <ColorBar title='Medium tweets' metric={props.metrics.medium} bgColor='bg-orange-500' />
-        <ColorBar title='Strong tweets' metric={props.metrics.strong} bgColor='bg-red-500' />
+      <div class='flex items-center space-x-3'>
+        <p class='text-lg text-slate-500'>{props.username}</p>
+        {isPremiumUser() ? (
+          <div class='flex text-blue-500'>
+            <Icon path={checkBadge} class='mr-2 h-6 w-6 text-inherit' />
+            <span>Premium member</span>
+          </div>
+        ) : (
+          <div class='flex text-red-500'>
+            <Icon path={xCircle} class='mr-2 h-6 w-6 text-inherit' />
+            <p>
+              To unlock the search and upload feature, make a one time donation{' '}
+              <A href='/donate' class='text-blue-400 hover:text-blue-500'>
+                here
+              </A>
+              !
+            </p>
+          </div>
+        )}
+      </div>
+
+      <p class='flex items-center text-2xl text-slate-900'>
+        {score} <span class='ml-2 text-sm'>({numProfanities()} profane tweets)</span>
+      </p>
+      <div class='mt-2 mb-4 flex' id='color-bar-container'>
+        <ColorBar
+          title='Mild tweets'
+          metric={props.metrics.mild}
+          total={numProfanities()}
+          bgColor='bg-yellow-300'
+        />
+        <ColorBar
+          title='Medium tweets'
+          metric={props.metrics.medium}
+          total={numProfanities()}
+          bgColor='bg-orange-500'
+        />
+        <ColorBar
+          title='Strong tweets'
+          metric={props.metrics.strong}
+          total={numProfanities()}
+          bgColor='bg-red-500'
+        />
         <ColorBar
           title='Strongest tweets'
           metric={props.metrics.strongest}
+          total={numProfanities()}
           bgColor='bg-slate-900'
         />
-      </div>
-      <div class='mt-2 mb-4 flex'>
-        <ColorBar title='Safe tweets' metric={props.metrics.safe} bgColor='bg-green-600' />
-        <ColorBar title='Unrated tweets' metric={props.metrics.unrated} bgColor='bg-slate-300' />
+        <ColorBar
+          title='Safe tweets'
+          metric={props.metrics.safe}
+          total={numProfanities()}
+          bgColor='bg-green-600'
+        />
+        <ColorBar
+          title='Unrated tweets'
+          metric={props.metrics.unrated}
+          total={numProfanities()}
+          bgColor='bg-slate-300'
+        />
       </div>
       <div class='flex items-center justify-evenly'>
         <MetricCount

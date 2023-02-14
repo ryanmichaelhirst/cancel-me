@@ -4,11 +4,8 @@ import { Icon } from 'solid-heroicons'
 import {
   archiveBoxXMark,
   arrowUpTray,
-  checkBadge,
   exclamationCircle,
   magnifyingGlass,
-  userCircle,
-  xCircle,
   xMark,
 } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
@@ -35,6 +32,8 @@ export const routeData = ({ params }: RouteDataArgs) => {
     { key: () => ['donations', params.id] },
   )
 }
+
+export type useDashboardRouteData = typeof routeData
 
 const DonationAlert = (props: {
   title: string
@@ -217,7 +216,7 @@ export default function User() {
     setError()
   }
 
-  const onSubmit: JSX.EventHandler<HTMLFormElement, Event> = async (e) => {
+  const onSearchSubmit: JSX.EventHandler<HTMLFormElement, Event> = async (e) => {
     e.preventDefault()
 
     const form = document.getElementById('username-search-form') as HTMLFormElement | null
@@ -227,10 +226,12 @@ export default function User() {
     const username = formData.get('username')?.toString()
     if (!username) return
 
+    setLoadingTweets(true)
     const resp = await (await fetch(`/api/v1/user/${username}/search`)).json()
 
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, screenname: username })
+    setLoadingTweets(false)
   }
 
   const onTabChange: JSX.EventHandler<HTMLDivElement, Event> = (e) => {
@@ -257,7 +258,35 @@ export default function User() {
   return (
     <Page>
       <Title>Dashboard</Title>
-      <h1 class='mt-10 text-5xl text-blue-800'>Dashboard</h1>
+      <div class='my-5 flex items-center space-x-5'>
+        <h1 class='text-5xl text-blue-800'>Dashboard</h1>
+        <section class='flex'>
+          <div class='rounded-lg border border-red-400 p-2 text-red-500 shadow'>
+            <div class='mb-1 flex items-center'>
+              <Icon path={exclamationCircle} class='h-4 w-4 text-inherit' />
+              <p class='ml-2 text-xs'>README</p>
+            </div>
+            <p class='text-xs'>
+              Due to{' '}
+              <a
+                class='text-blue-500'
+                href='https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline'
+              >
+                Twitter api restrictions
+              </a>{' '}
+              , you can only delete your 3200 most recent tweets. You can delete all of your tweets
+              by making a donation{' '}
+              <A href='/donate' class='text-blue-500'>
+                here
+              </A>{' '}
+              and downloading your twitter archive{' '}
+              <a class='text-blue-500' href='https://twitter.com/settings/download_your_data'>
+                here
+              </a>{' '}
+            </p>
+          </div>
+        </section>
+      </div>
 
       {searchParams.transaction && (
         <section>
@@ -287,61 +316,6 @@ export default function User() {
           )}
         </section>
       )}
-      <section class='mt-4 flex flex-col rounded-lg border p-4 shadow'>
-        <div class='mb-2 flex'>
-          <Icon path={userCircle} class='mr-2 h-6 w-6' />
-          <span>
-            {data()?.user?.screen_name} ({params.id})
-          </span>
-        </div>
-        {isPremiumUser() ? (
-          <div class='flex text-blue-500'>
-            <Icon path={checkBadge} class='mr-2 h-6 w-6 text-inherit' />
-            <span>Premium member</span>
-          </div>
-        ) : (
-          <div class='flex text-red-500'>
-            <Icon path={xCircle} class='mr-2 h-6 w-6 text-inherit' />
-            <p>
-              To unlock the search and upload feature, make a one time donation{' '}
-              <A href='/donate' class='text-blue-400 hover:text-blue-500'>
-                here
-              </A>
-              !
-            </p>
-          </div>
-        )}
-      </section>
-
-      <div class='my-4 rounded-lg border border-red-400 p-4 text-red-500 shadow'>
-        <div class='mb-4 flex items-center'>
-          <Icon path={exclamationCircle} class='h-8 w-8 text-inherit' />
-          <p class='ml-2 text-2xl'>README</p>
-        </div>
-
-        <p class='mb-2'>
-          Due to the nature of Twitter's api, you are only able to delete your most recent 3200
-          tweets.
-        </p>
-        <p class='mb-2'>
-          If you would like to delete more tweets, please download a csv of all your tweets{' '}
-          <a class='text-blue-500' href='https://twitter.com/settings/download_your_data'>
-            here
-          </a>{' '}
-          and use the "Upload Csv" feature. You must make a one time donation before being able to
-          use this feature.
-        </p>
-        <p>
-          You can find more information on this api limitation{' '}
-          <a
-            class='text-blue-500'
-            href='https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline'
-          >
-            here
-          </a>
-          .
-        </p>
-      </div>
 
       {profanityMetrics() && (
         <section>
@@ -370,7 +344,7 @@ export default function User() {
           <Icon path={arrowUpTray} class='h-6 w-6 text-inherit' />
         </button>
 
-        <form onSubmit={onSubmit} id='username-search-form'>
+        <form onSubmit={onSearchSubmit} id='username-search-form'>
           <div class='inline-flex rounded'>
             <input
               disabled={!isPremiumUser()}
@@ -403,7 +377,6 @@ export default function User() {
           <>
             <div class='mb-2 flex items-center text-2xl'>
               <h1 class='font-bold'>Tweets</h1>
-              <span class='pl-2'>({filteredTweets().length})</span>
             </div>
             <div class='flex space-x-5' role='tablist'>
               <div
@@ -414,7 +387,7 @@ export default function User() {
                   selectedTab() === 'All' ? 'text-blue-500' : 'text-slate-800',
                 )}
               >
-                All
+                All ({tweets().length})
               </div>
               <div
                 role='tab'
@@ -424,7 +397,7 @@ export default function User() {
                   selectedTab() === 'Profanities' ? 'text-blue-500' : 'text-slate-800',
                 )}
               >
-                Profanities
+                Profanities ({tweets().filter((t) => t.isProfanity).length})
               </div>
             </div>
             <hr class='my-2' />
