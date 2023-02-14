@@ -1,7 +1,16 @@
 import { A } from '@solidjs/router'
 import classNames from 'classnames'
 import { Icon } from 'solid-heroicons'
-import { checkBadge, exclamationCircle, userCircle, xCircle, xMark } from 'solid-heroicons/outline'
+import {
+  archiveBoxXMark,
+  arrowUpTray,
+  checkBadge,
+  exclamationCircle,
+  magnifyingGlass,
+  userCircle,
+  xCircle,
+  xMark,
+} from 'solid-heroicons/outline'
 import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
 import { RouteDataArgs, Title, useParams, useRouteData, useSearchParams } from 'solid-start'
 import { createServerData$, redirect } from 'solid-start/server'
@@ -90,7 +99,7 @@ export default function User() {
     setLoadingTweets(true)
     // control loading all tweets with ?paginate=(true|false)
     const { tweets, metrics } = await (
-      await fetch(`/api/v1/user/${params.id}/tweets?paginate=false`)
+      await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)
     ).json()
     // const resp = await (await fetch(`/api/v1/user/${params.id}/rate_limit_status`)).json()
     console.log(tweets, metrics)
@@ -343,23 +352,22 @@ export default function User() {
         </section>
       )}
 
-      <section class='flex items-center justify-between rounded-t border border-b-0 border-blue-200 p-4'>
+      <section class='inline-flex w-fit items-center space-x-3 rounded-t border border-b-0 border-blue-200 p-4'>
         <button
           onClick={onDeleteSelectedTweets}
-          class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:cursor-not-allowed disabled:border-gray-500 disabled:opacity-50'
+          class='rounded py-1 px-2 text-red-500 enabled:hover:bg-red-500 enabled:hover:text-white disabled:cursor-not-allowed disabled:opacity-50'
           disabled={selectedTweetIds().length === 0}
-          title='Delete tweets'
+          title='Delete selectd tweets'
         >
-          Delete tweets
+          <Icon path={archiveBoxXMark} class='h-6 w-6 text-inherit' />
         </button>
-        {/* make this a paid feature */}
         <button
           onClick={() => setShowUploadModal(true)}
-          class='rounded border py-1 px-2 text-slate-800 enabled:border-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:border-gray-500 disabled:opacity-50'
+          class='rounded py-1 px-2 text-blue-500 enabled:hover:bg-blue-500 enabled:hover:text-white disabled:opacity-50'
           disabled={!isPremiumUser()}
-          title='Delete tweets'
+          title='Upload twitter data csv'
         >
-          Upload Csv
+          <Icon path={arrowUpTray} class='h-6 w-6 text-inherit' />
         </button>
 
         <form onSubmit={onSubmit} id='username-search-form'>
@@ -377,9 +385,9 @@ export default function User() {
               disabled={!isPremiumUser()}
               type='submit'
               title='Search'
-              class='w-20 rounded-r py-1 px-2 text-white enabled:bg-blue-500 enabled:hover:bg-blue-600 disabled:bg-gray-500 disabled:opacity-50'
+              class='w-fit rounded-r py-1 px-2 text-white enabled:bg-blue-500 enabled:hover:bg-blue-600 disabled:bg-gray-500 disabled:opacity-50'
             >
-              Search
+              <Icon path={magnifyingGlass} class='h-6 w-6 text-inherit' />
             </button>
           </div>
         </form>
@@ -469,11 +477,7 @@ export default function User() {
       <Show when={showDeleteModal()}>
         <div class='modal'>
           <div class='modal-content'>
-            <p class='mb-4'>
-              {selectedTweetIds().length === 1
-                ? 'Are you sure you want to delete this tweet?'
-                : 'Are you sure you want to delete these tweets?'}
-            </p>
+            <p class='mb-2 border-b-red-600 text-2xl text-red-600'>Delete tweets</p>
             <p class='mb-4'>
               If you selected more than 10 tweets only the first 10 ten will show in the list below.
             </p>
@@ -482,6 +486,21 @@ export default function User() {
                 <div innerHTML={html} class='mb-2 rounded border border-gray-200 p-3 shadow' />
               )}
             </For>
+            <p class='mb-4 text-red-600'>
+              {selectedTweetIds().length === 1
+                ? 'Are you sure you want to delete this 1 tweet? '
+                : `Are you sure you want to delete all ${selectedTweetIds().length} tweets? `}
+              This operation is irreversible. If you would like to view them later you can download
+              your data archive from Twitter{' '}
+              <a
+                href='https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive'
+                target='_blank'
+                class='text-blue-500'
+              >
+                here
+              </a>
+              .
+            </p>
             <div class='mt-10 flex space-x-5'>
               <button
                 onClick={(e) => setShowDeleteModal()}

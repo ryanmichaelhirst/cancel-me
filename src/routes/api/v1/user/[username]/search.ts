@@ -1,6 +1,6 @@
 import { APIEvent, json } from 'solid-start'
 import { twitterLite } from '~/lib/twitter-lite'
-import { getLowestId, getUserTweets } from '../[id]/tweets'
+import { getUserTweetsPaginated } from '../[id]/tweets'
 
 interface UserShowRequest {
   id: number
@@ -21,30 +21,10 @@ export async function GET({ params, request }: APIEvent) {
     const userId = userShowResp.id_str
 
     // get most recent 3200 tweets
-    let data = await getUserTweets({ userId })
-    let maxId: number | null = getLowestId(data)
-    console.log({ maxId })
+    const tweets = await getUserTweetsPaginated({ userId, paginate: true })
+    const metrics = twitterLite.profanityMetrics(tweets)
 
-    while (maxId) {
-      let resp = await getUserTweets({ userId, maxId })
-      console.log(`getting data for ${maxId}`)
-      data = data.concat(resp)
-      const newMaxId = getLowestId(resp)
-      console.log(`newMaxId: ${newMaxId} - maxId: ${maxId}`)
-
-      if (newMaxId.toString() === 'Infinity') {
-        console.log('newMaxId is Infinity')
-        maxId = null
-      } else if (newMaxId === maxId) {
-        maxId = null
-      } else {
-        maxId = newMaxId
-      }
-    }
-
-    const metrics = twitterLite.profanityMetrics(data)
-
-    return json({ tweets: data, metrics, username: userShowResp.screen_name })
+    return json({ tweets, metrics, username: userShowResp.screen_name })
   } catch (error) {
     return new Response('Unable to search user', { status: 401 })
   }

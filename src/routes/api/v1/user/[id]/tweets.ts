@@ -33,48 +33,59 @@ export const getUserTweets = async ({ userId, maxId }: { userId: string; maxId?:
   })
 }
 
+export const getUserTweetsPaginated = async ({
+  userId,
+  maxId,
+  paginate,
+  data = [],
+}: {
+  userId: string
+  maxId?: number
+  paginate?: boolean
+  data?: any[]
+}): Promise<any[]> => {
+  let tweets = await getUserTweets({ userId, maxId })
+  if (!paginate) return tweets
+
+  const newMaxId: number | null = getLowestId(tweets)
+
+  tweets = data.concat(tweets)
+
+  // fixes this vercel function error
+  // [ERROR] [1676162159910] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+  if (tweets.length > 3200 || newMaxId.toString() === 'Infinity' || newMaxId === maxId) {
+    return tweets
+  }
+
+  return await getUserTweetsPaginated({
+    userId,
+    maxId: newMaxId,
+    paginate: true,
+    data: tweets,
+  })
+}
+
 // statuses/user_timeline docs
 // https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
 export async function GET({ params, request }: APIEvent) {
   try {
-    let data = await getUserTweets({ userId: params.userId })
-
     const parsedUrl = url.parse(request.url)
     const query = parsedUrl.query
-    if (!query) return json({ tweets: data })
+    const { paginate } = query ? querystring.parse(query) : { paginate: false }
+    const userId = params.userId
 
-    const { paginate } = querystring.parse(query)
-    if (!paginate || paginate === 'false') return json({ tweets: data })
+    // if we aren't paginating, return the first 200 tweets
+    if (!query || !paginate || paginate === 'false' || process.env.NODE_ENV === 'development') {
+      const tweets = await getUserTweets({ userId })
+      const metrics = twitterLite.profanityMetrics(tweets)
 
-    let maxId: number | null = getLowestId(data)
-    console.log({ paginate, maxId })
-
-    while (maxId) {
-      let resp = await getUserTweets({ userId: params.userId, maxId })
-      console.log(`getting data for ${maxId}`)
-      data = data.concat(resp)
-      const newMaxId = getLowestId(resp)
-      console.log(`newMaxId: ${newMaxId} - maxId: ${maxId}`)
-
-      // fixes this vercel function error
-      // [ERROR] [1676162159910] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
-      if (data.length >= 3200) {
-        console.log('tweet limit reached', data.length)
-        maxId = null
-      } else if (newMaxId.toString() === 'Infinity') {
-        console.log('newMaxId is Infinity')
-        maxId = null
-      } else if (newMaxId === maxId) {
-        console.log('both maxId are equal')
-        maxId = null
-      } else {
-        maxId = newMaxId
-      }
+      return json({ tweets, metrics })
     }
 
-    const metrics = twitterLite.profanityMetrics(data)
+    const tweets = await getUserTweetsPaginated({ userId, paginate: true })
+    const metrics = twitterLite.profanityMetrics(tweets)
 
-    return json({ tweets: data, metrics })
+    return json({ tweets, metrics })
   } catch (error) {
     return new Response('Unable to get tweets', { status: 401 })
   }
