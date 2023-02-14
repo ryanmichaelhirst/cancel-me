@@ -30,7 +30,7 @@ export async function GET({ params, request }: APIEvent) {
     const userId = currentUser.data?.id
     twitterUserClient.setUserId(userId)
 
-    return redirect(`/user/${userId}`)
+    return redirect('dashboard')
   } catch (error) {
     return json({ callbackError: error })
   }

@@ -22,15 +22,12 @@ import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
 import { donations } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  return createServerData$(
-    async ([, userId], { request }) => {
-      const user = await useUser(request)
-      if (!user) throw redirect('/')
+  return createServerData$(async (_, { request }) => {
+    const user = await useUser(request)
+    if (!user) throw redirect('/')
 
-      return { user, donations: await donations({ userId }) }
-    },
-    { key: () => ['donations', params.id] },
-  )
+    return { user, donations: await donations({ userId: user.id_str }) }
+  })
 }
 
 export type useDashboardRouteData = typeof routeData
@@ -98,9 +95,8 @@ export default function User() {
     setLoadingTweets(true)
     // control loading all tweets with ?paginate=(true|false)
     const { tweets, metrics } = await (
-      await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)
+      await fetch(`/api/v1/user/${data()?.user.id_str}/tweets?paginate=true`)
     ).json()
-    // const resp = await (await fetch(`/api/v1/user/${params.id}/rate_limit_status`)).json()
     console.log(tweets, metrics)
 
     setTweets(tweets)

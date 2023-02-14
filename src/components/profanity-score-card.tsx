@@ -2,6 +2,7 @@ import { A } from '@solidjs/router'
 import classNames from 'classnames'
 import { Icon } from 'solid-heroicons'
 import {
+  bars_2,
   checkBadge,
   exclamationTriangle,
   faceFrown,
@@ -12,7 +13,7 @@ import {
   xCircle,
 } from 'solid-heroicons/outline'
 import { useRouteData } from 'solid-start'
-import { useDashboardRouteData } from '~/routes/[...index]/user/[id]'
+import { useDashboardRouteData } from '~/routes/[...index]/dashboard'
 
 const ColorBar = (props: { metric: number; total: number; title: string; bgColor: string }) => {
   const width = window.document.getElementById('color-bar-container')?.clientWidth ?? 100
@@ -20,7 +21,7 @@ const ColorBar = (props: { metric: number; total: number; title: string; bgColor
   return (
     <div
       title={props.title}
-      class={classNames('mr-2 h-6 rounded', props.bgColor)}
+      class={classNames('h-4 rounded', props.bgColor)}
       style={{ width: `${Math.round((props.metric / props.total) * width)}px` }}
     />
   )
@@ -29,10 +30,12 @@ const ColorBar = (props: { metric: number; total: number; title: string; bgColor
 const MetricCount = (props: any) => {
   return (
     <div>
-      <p class={classNames('text-lg', props.bgColor)}>{props.title}</p>
+      <p class={classNames('text-center text-sm', props.bgColor)}>{props.title}</p>
       <div class='flex'>
-        <Icon path={props.icon} class={classNames('h-6 w-6 text-inherit', props.bgColor)} />
-        <p class='ml-2'>{props.metric}</p>
+        {props.icon && (
+          <Icon path={props.icon} class={classNames('h-6 w-6 text-inherit', props.bgColor)} />
+        )}
+        <p class='ml-2 text-sm'>{props.metric}</p>
       </div>
     </div>
   )
@@ -66,15 +69,14 @@ export const ProfanityScoreCard = (props: any) => {
   return (
     <div class='mb-10 rounded border py-2 px-6 shadow-lg'>
       <div class='flex items-center space-x-3'>
-        <p class='text-lg text-slate-500'>{props.username}</p>
+        <p class='text-sm text-slate-500'>{props.username}</p>
         {isPremiumUser() ? (
-          <div class='flex text-blue-500'>
-            <Icon path={checkBadge} class='mr-2 h-6 w-6 text-inherit' />
-            <span>Premium member</span>
+          <div class='flex items-center text-sm text-blue-500' title='Donated - premium member'>
+            <Icon path={checkBadge} class='mr-2 h-6 w-6 text-inherit hover:cursor-pointer' />
           </div>
         ) : (
-          <div class='flex text-red-500'>
-            <Icon path={xCircle} class='mr-2 h-6 w-6 text-inherit' />
+          <div class='flex text-red-500' title='Not donated - free member'>
+            <Icon path={xCircle} class='mr-2 h-6 w-6 text-inherit hover:cursor-pointer' />
             <p>
               To unlock the search and upload feature, make a one time donation{' '}
               <A href='/donate' class='text-blue-400 hover:text-blue-500'>
@@ -86,10 +88,53 @@ export const ProfanityScoreCard = (props: any) => {
         )}
       </div>
 
-      <p class='flex items-center text-2xl text-slate-900'>
-        {score} <span class='ml-2 text-sm'>({numProfanities()} profane tweets)</span>
-      </p>
-      <div class='mt-2 mb-4 flex' id='color-bar-container'>
+      <section class='flex items-center space-x-5'>
+        <p class='flex items-center text-2xl text-slate-900'>{score}</p>
+        <div class='flex flex-auto flex-col'>
+          <div class='flex items-center justify-between'>
+            <MetricCount
+              title='Mild'
+              icon={faceSmile}
+              metric={props.metrics.mild}
+              bgColor='text-yellow-300'
+            />
+            <MetricCount
+              title='Medium'
+              icon={faceFrown}
+              metric={props.metrics.medium}
+              bgColor='text-orange-500'
+            />
+            <MetricCount
+              title='Strong'
+              icon={exclamationTriangle}
+              metric={props.metrics.strong}
+              bgColor='text-red-500'
+            />
+            <MetricCount
+              title='Strongest'
+              icon={fire}
+              metric={props.metrics.strongest}
+              bgColor='text-slate-900'
+            />
+            <MetricCount
+              title='Safe'
+              icon={handThumbUp}
+              metric={props.metrics.safe}
+              bgColor='text-green-600'
+            />
+            <MetricCount
+              title='Unrated'
+              icon={questionMarkCircle}
+              metric={props.metrics.unrated}
+              bgColor='text-slate-500'
+            />
+            <Icon path={bars_2} class={classNames('h-6 w-6 text-slate-900')} />
+            <MetricCount title='Total' metric={numProfanities()} bgColor='text-slate-900' />
+          </div>
+        </div>
+      </section>
+
+      <div class='my-2 flex space-x-1' id='color-bar-container'>
         <ColorBar
           title='Mild tweets'
           metric={props.metrics.mild}
@@ -125,44 +170,6 @@ export const ProfanityScoreCard = (props: any) => {
           metric={props.metrics.unrated}
           total={numProfanities()}
           bgColor='bg-slate-300'
-        />
-      </div>
-      <div class='flex items-center justify-evenly'>
-        <MetricCount
-          title='Mild'
-          icon={faceSmile}
-          metric={props.metrics.mild}
-          bgColor='text-yellow-300'
-        />
-        <MetricCount
-          title='Medium'
-          icon={faceFrown}
-          metric={props.metrics.medium}
-          bgColor='text-orange-500'
-        />
-        <MetricCount
-          title='Strong'
-          icon={exclamationTriangle}
-          metric={props.metrics.strong}
-          bgColor='text-red-500'
-        />
-        <MetricCount
-          title='Strongest'
-          icon={fire}
-          metric={props.metrics.strongest}
-          bgColor='text-slate-900'
-        />
-        <MetricCount
-          title='Safe'
-          icon={handThumbUp}
-          metric={props.metrics.safe}
-          bgColor='text-green-600'
-        />
-        <MetricCount
-          title='Unrated'
-          icon={questionMarkCircle}
-          metric={props.metrics.unrated}
-          bgColor='text-slate-500'
         />
       </div>
     </div>

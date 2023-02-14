@@ -35,11 +35,8 @@ export const Navbar = () => {
       </A>
       {data()?.user && (
         <A
-          href={`/user/${data()?.user?.id_str}`}
-          class={classNames(
-            'hover:text-blue-700',
-            path() === `/user/${data()?.user?.id_str}` && 'text-blue-500',
-          )}
+          href='/dashboard'
+          class={classNames('hover:text-blue-700', path() === '/dashboard' && 'text-blue-500')}
         >
           Dashboard
         </A>

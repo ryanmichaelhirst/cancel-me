@@ -34,7 +34,7 @@ export async function GET({ params, request }: APIEvent) {
     const user = pick(accountResp, ['id_str', 'email', 'id', 'screen_name'])
 
     // create session
-    return createUserSession(user, `/user/${user.id_str}`)
+    return createUserSession(user, '/dashboard')
   } catch (error) {
     return json({ error })
   }

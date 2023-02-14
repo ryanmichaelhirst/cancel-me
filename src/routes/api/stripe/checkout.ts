@@ -25,8 +25,8 @@ export async function POST({ request }: APIEvent) {
     const session = await stripe.checkout.sessions.create({
       line_items: [lineItem],
       mode: 'payment',
-      success_url: `${origin}/user/${userId}?transaction=completed`,
-      cancel_url: `${origin}/user/${userId}?transaction=canceled`,
+      success_url: `${origin}/dashboard?transaction=completed`,
+      cancel_url: `${origin}/dashboard?transaction=canceled`,
       customer_email: email,
       metadata: {
         productId,
