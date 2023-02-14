@@ -1,6 +1,8 @@
+import pick from 'lodash.pick'
 import querystring from 'querystring'
-import { APIEvent, json, redirect } from 'solid-start/api'
+import { APIEvent, json } from 'solid-start/api'
 import url from 'url'
+import { createUserSession } from '~/lib/session'
 import { twitterLite } from '~/lib/twitter-lite'
 
 // step 2: handle authorization from twitter login
@@ -24,18 +26,15 @@ export async function GET({ params, request }: APIEvent) {
     twitterLite.setClient(resp.oauth_token, resp.oauth_token_secret)
 
     // get current user
-    const credentials: {
-      id: number
-      id_str: string
-      name: string
-      screen_name: string
-      email: string
-    } = await twitterLite.client.get('account/verify_credentials', {
+    const accountResp = await twitterLite.client.get('account/verify_credentials', {
       include_email: true,
     })
-    twitterLite.setCredentials(credentials)
+    console.log(accountResp)
 
-    return redirect(`/user/${credentials.id}`)
+    const user = pick(accountResp, ['id_str', 'email', 'id', 'screen_name'])
+
+    // create session
+    return createUserSession(user, `/user/${user.id_str}`)
   } catch (error) {
     return json({ error })
   }

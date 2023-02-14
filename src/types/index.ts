@@ -1,5 +1,26 @@
 import type Stripe from 'stripe'
 
+export interface AccountVerifyCredentialsResponse {
+  id_str: string
+  email: string
+  id: number
+  screen_name: string
+  profile_image_url: string
+  profile_image_url_https: string
+  profile_use_background_image: string
+  profile_background_image_url: string
+  profile_background_image_url_https: string
+  verified: boolean
+  description: string
+  name: string
+  favourites_count: number
+  statuses_count: number
+  followers_count: number
+  friends_count: number
+}
+
+export type User = Pick<AccountVerifyCredentialsResponse, 'id' | 'id_str' | 'email' | 'screen_name'>
+
 // type TwitterTweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
 export type Tweet = {
   text: string

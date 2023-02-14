@@ -1,11 +1,14 @@
 import { Outlet, RouteDataArgs } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { Navbar } from '~/components/nav-bar'
-import { credentials, getProducts } from '~/util'
+import { useUser } from '~/lib/useUser'
+import { getProducts } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  return createServerData$(async () => {
-    return { credentials: credentials(), products: await getProducts() }
+  return createServerData$(async (_, { request }) => {
+    const user = await useUser(request)
+
+    return { user, products: await getProducts() }
   })
 }
 

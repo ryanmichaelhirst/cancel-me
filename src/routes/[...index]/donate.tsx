@@ -48,7 +48,7 @@ export default function Donate() {
       <section class='-mx-[40px] mt-20 flex-auto bg-blue-500 px-[40px] py-4 lg:-mx-[120px] lg:px-[120px] xl:-mx-[200px] xl:px-[200px]'>
         <p class='text-2xl text-white'>Powered by Stripe</p>
         <p class='mb-4 text-3xl text-slate-900'>Make a one time donation</p>
-        {!data()?.credentials && (
+        {!data()?.user && (
           <button
             class='mb-4 inline-block rounded bg-white px-4 py-1 text-lg text-red-500 shadow hover:bg-gray-300'
             onClick={onLogin}
@@ -61,7 +61,7 @@ export default function Donate() {
             <div
               class={classNames(
                 'mb-4 flex-1 rounded bg-white',
-                !data()?.credentials && 'cursor-not-allowed opacity-50',
+                !data()?.user && 'cursor-not-allowed opacity-50',
               )}
             >
               <div class='flex items-center rounded-t border border-b-0 border-solid p-3 shadow'>
@@ -80,12 +80,12 @@ export default function Donate() {
               <div class='rounded-b border border-b border-t-0 border-solid bg-gray-200 p-3 hover:bg-gray-300'>
                 <form action='/api/stripe/checkout' method='post'>
                   <input name='productId' value={p.id} hidden={true} />
-                  <input name='userId' value={data()?.credentials?.id_str} hidden={true} />
-                  <input name='email' value={data()?.credentials?.email} hidden={true} />
+                  <input name='userId' value={data()?.user?.id_str} hidden={true} />
+                  <input name='email' value={data()?.user?.email} hidden={true} />
                   <button
                     type='submit'
                     class='w-full text-left disabled:cursor-not-allowed'
-                    disabled={!data()?.credentials}
+                    disabled={!data()?.user}
                   >
                     Checkout
                   </button>

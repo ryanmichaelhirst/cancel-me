@@ -4,20 +4,24 @@ import { Icon } from 'solid-heroicons'
 import { checkBadge, exclamationCircle, userCircle, xCircle, xMark } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
 import { RouteDataArgs, Title, useParams, useRouteData, useSearchParams } from 'solid-start'
-import { createServerData$ } from 'solid-start/server'
+import { createServerData$, redirect } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
 import { Page } from '~/components/page'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
+import { useUser } from '~/lib/useUser'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
-import { credentials, donations } from '~/util'
+import { donations } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(
     async ([, userId], { request }) => {
-      return { credentials: credentials(), donations: await donations({ userId }) }
+      const user = await useUser(request)
+      if (!user) throw redirect('/')
+
+      return { user, donations: await donations({ userId }) }
     },
     { key: () => ['donations', params.id] },
   )
@@ -68,8 +72,9 @@ export default function User() {
 
   const data = useRouteData<typeof routeData>()
   const isPremiumUser = () => {
-    if (!data()?.donations) return
+    if (!data()?.donations || typeof data()?.donations === 'undefined') return
 
+    // @ts-expect-error data().donations marked as possibly undefined?
     return data()?.donations.length > 0
   }
 
@@ -85,7 +90,7 @@ export default function User() {
     setLoadingTweets(true)
     // control loading all tweets with ?paginate=(true|false)
     const { tweets, metrics } = await (
-      await fetch(`/api/v1/user/${params.id}/tweets?paginate=true`)
+      await fetch(`/api/v1/user/${params.id}/tweets?paginate=false`)
     ).json()
     // const resp = await (await fetch(`/api/v1/user/${params.id}/rate_limit_status`)).json()
     console.log(tweets, metrics)
@@ -93,7 +98,7 @@ export default function User() {
     setTweets(tweets)
 
     if (metrics) {
-      setProfanityMetrics({ metrics, screenname: data()?.credentials?.screen_name })
+      setProfanityMetrics({ metrics, screenname: data()?.user?.screen_name })
     }
 
     setLoadingTweets(false)
@@ -226,7 +231,7 @@ export default function User() {
 
   const onUpload = (resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics }) => {
     setTweets(resp.tweets)
-    setProfanityMetrics({ metrics: resp.metrics, screename: data()?.credentials?.screen_name })
+    setProfanityMetrics({ metrics: resp.metrics, screename: data()?.user?.screen_name })
     setShowUploadModal(false)
   }
 
@@ -277,7 +282,7 @@ export default function User() {
         <div class='mb-2 flex'>
           <Icon path={userCircle} class='mr-2 h-6 w-6' />
           <span>
-            {data()?.credentials?.screen_name} ({params.id})
+            {data()?.user?.screen_name} ({params.id})
           </span>
         </div>
         {isPremiumUser() ? (

@@ -12,11 +12,8 @@ import badWords from '~/word-lists/profanities'
 import strongWords from '~/word-lists/strong'
 import strongestWords from '~/word-lists/strongest'
 
-type Credentials = { id_str: string; email: string; id: number; screen_name: string }
-
 class TwitterLite {
   public client: Twitter
-  public credentials?: Credentials
   private profanities: string[]
   private mildWords: string[]
   private mediumWords: string[]
@@ -92,10 +89,6 @@ class TwitterLite {
       access_token_key: accessToken,
       access_token_secret: accessTokenSecret,
     })
-  }
-
-  setCredentials(credentials?: any) {
-    this.credentials = credentials
   }
 
   profanityMetrics(tweets: Tweet[]) {

@@ -44,7 +44,7 @@ export async function GET({ params, request }: APIEvent) {
     if (!query) return json({ tweets: data })
 
     const { paginate } = querystring.parse(query)
-    if (!paginate) return json({ tweets: data })
+    if (!paginate || paginate === 'false') return json({ tweets: data })
 
     let maxId: number | null = getLowestId(data)
     console.log({ paginate, maxId })

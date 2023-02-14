@@ -1,25 +1,20 @@
 import { useLocation, useRouteData } from '@solidjs/router'
 import classNames from 'classnames'
 import { createEffect, createSignal, JSX } from 'solid-js'
-import { A, refetchRouteData, useNavigate } from 'solid-start'
+import { A } from 'solid-start'
+import { createServerAction$ } from 'solid-start/server'
+import { logout } from '~/lib/session'
 import { useLayoutRouteData } from '~/routes/[...index]'
 
 export const Navbar = () => {
   const location = useLocation()
-  const navigate = useNavigate()
   const [path, setPath] = createSignal<string>()
+  const [, { Form }] = createServerAction$((f: FormData, { request }) => logout(request))
   const data = useRouteData<useLayoutRouteData>()
 
   createEffect(async () => {
     setPath(location.pathname)
   })
-
-  const onLogout: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
-    const resp = await (await fetch(`/api/v1/oauth/logout`)).json()
-
-    refetchRouteData()
-    navigate('/')
-  }
 
   const onLogin: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     const resp = await (await fetch(`/api/v1/oauth/login`)).json()
@@ -38,24 +33,23 @@ export const Navbar = () => {
       >
         Donate
       </A>
-      {data()?.credentials && (
+      {data()?.user && (
         <A
-          href={`/user/${data()?.credentials?.id_str}`}
+          href={`/user/${data()?.user?.id_str}`}
           class={classNames(
             'hover:text-blue-700',
-            path() === `/user/${data()?.credentials?.id_str}` && 'text-blue-500',
+            path() === `/user/${data()?.user?.id_str}` && 'text-blue-500',
           )}
         >
           Dashboard
         </A>
       )}
-      {data()?.credentials?.id_str ? (
-        <button
-          onClick={onLogout}
-          class='rounded bg-blue-500 py-1 px-2 text-white hover:bg-blue-600'
-        >
-          Logout
-        </button>
+      {data()?.user?.id_str ? (
+        <Form>
+          <button type='submit' class='rounded bg-blue-500 py-1 px-2 text-white hover:bg-blue-600'>
+            Logout
+          </button>
+        </Form>
       ) : (
         <button
           onClick={onLogin}
