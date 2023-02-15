@@ -7,11 +7,11 @@ import { useLayoutRouteData } from '~/routes/[...index]'
 
 type HeroIcon = typeof archiveBox
 
-const OfferingItem = ({ icon, text }: { icon: HeroIcon; text: string }) => {
+const OfferingItem = (props: { icon: HeroIcon; text: string }) => {
   return (
     <li class='mb-4 flex flex-col items-center self-stretch rounded border p-3 shadow md:mb-0 md:w-1/3'>
-      <Icon path={icon} class='mb-2 h-6 w-6 text-inherit text-blue-800' />
-      <p class='text-center text-slate-800'>{text}</p>
+      <Icon path={props.icon} class='mb-2 h-6 w-6 text-inherit text-blue-800' />
+      <p class='text-center text-slate-800'>{props.text}</p>
     </li>
   )
 }
