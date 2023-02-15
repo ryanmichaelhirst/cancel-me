@@ -9,14 +9,15 @@ import {
   xMark,
 } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
-import { RouteDataArgs, Title, useParams, useRouteData, useSearchParams } from 'solid-start'
-import { createServerData$, redirect } from 'solid-start/server'
+import { RouteDataArgs, Title, useRouteData, useSearchParams } from 'solid-start'
+import { createServerAction$, createServerData$, redirect } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
 import { Page } from '~/components/page'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
+import { logout as _logoutSession } from '~/lib/session'
 import { useUser } from '~/lib/useUser'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
 import { donations } from '~/util'
@@ -52,8 +53,11 @@ const DonationAlert = (props: {
 )
 
 export default function User() {
-  const params = useParams()
+  // const params = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [loggingOut, logout] = createServerAction$(async (_, { request }) => {
+    return await _logoutSession(request)
+  })
 
   const [tweets, setTweets] = createSignal<TweetRecord[]>([])
   const [selectedTweetIds, setSelectedTweetIds] = createSignal<string[]>([])
@@ -61,6 +65,7 @@ export default function User() {
   const [selectedTab, setSelectedTab] = createSignal<string>('All')
   const [showDeleteModal, setShowDeleteModal] = createSignal<boolean>()
   const [loadingTweets, setLoadingTweets] = createSignal<boolean>()
+  // not being used currectly due to problem with importing twitter css
   const [embedHtml, setEmbedHtml] = createSignal<string[]>([])
 
   const [progress, setProgress] = createSignal<number>(0)
@@ -76,6 +81,7 @@ export default function User() {
   const [showUploadModal, setShowUploadModal] = createSignal<boolean>()
 
   const data = useRouteData<typeof routeData>()
+
   const isPremiumUser = () => {
     if (!data()?.donations || typeof data()?.donations === 'undefined') return
 
@@ -92,20 +98,24 @@ export default function User() {
   }
 
   onMount(async () => {
-    setLoadingTweets(true)
-    // control loading all tweets with ?paginate=(true|false)
-    const { tweets, metrics } = await (
-      await fetch(`/api/v1/user/${data()?.user.id_str}/tweets?paginate=true`)
-    ).json()
-    console.log(tweets, metrics)
+    try {
+      setLoadingTweets(true)
+      // control loading all tweets with ?paginate=(true|false)
+      const resp = await fetch(`/api/v1/user/${data()?.user.id_str}/tweets?paginate=true`)
+      const json = await resp.json()
+      const { tweets, metrics } = json
+      setTweets(tweets)
 
-    setTweets(tweets)
+      if (metrics) {
+        setProfanityMetrics({ metrics, screenname: data()?.user?.screen_name })
+      }
 
-    if (metrics) {
-      setProfanityMetrics({ metrics, screenname: data()?.user?.screen_name })
+      setLoadingTweets(false)
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        await logout()
+      }
     }
-
-    setLoadingTweets(false)
   })
 
   const onSelectAll = () => {
@@ -125,11 +135,11 @@ export default function User() {
   const onDeleteSelectedTweets: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     if (selectedTweetIds().length === 0) return
 
-    const previewForFirstTenTweets = selectedTweetIds().slice(0, 10)
-    for (const id of previewForFirstTenTweets) {
-      const resp = await (await fetch(`/api/oembed/${id}`)).json()
-      setEmbedHtml((prev) => prev.concat([resp.html]))
-    }
+    // const previewForFirstTenTweets = selectedTweetIds().slice(0, 10)
+    // for (const id of previewForFirstTenTweets) {
+    //   const resp = await (await fetch(`/api/oembed/${id}`)).json()
+    //   setEmbedHtml((prev) => prev.concat([resp.html]))
+    // }
 
     setShowDeleteModal(true)
   }
@@ -138,8 +148,8 @@ export default function User() {
     const id = event.currentTarget.id
 
     // TODO: get css from this tool @ https://publish.twitter.com/#
-    const resp = await (await fetch(`/api/oembed/${id}`)).json()
-    setEmbedHtml([resp.html])
+    // const resp = await (await fetch(`/api/oembed/${id}`)).json()
+    // setEmbedHtml([resp.html])
 
     setSelectedTweetIds([id])
     setShowDeleteModal(true)
@@ -416,7 +426,7 @@ export default function User() {
                       </label>
                     </th>
                     <th class='w-10'>#</th>
-                    <th class='min-w-52'>TWEET</th>
+                    <th class='min-w-52 max-w-[75%]'>TWEET</th>
                     <th class='w-32'>DATE</th>
                     <th class='w-32'></th>
                   </tr>
@@ -447,20 +457,22 @@ export default function User() {
         <div class='modal'>
           <div class='modal-content'>
             <p class='mb-2 border-b-red-600 text-2xl text-red-600'>Delete tweets</p>
-            <p class='mb-4'>
+            {/* <p class='mb-4'>
               If you selected more than 10 tweets only the first 10 ten will show in the list below.
-            </p>
-            <For each={embedHtml()}>
+            </p> */}
+            {/* <For each={embedHtml()}>
               {(html) => (
                 <div innerHTML={html} class='mb-2 rounded border border-gray-200 p-3 shadow' />
               )}
-            </For>
-            <p class='mb-4 text-red-600'>
+            </For> */}
+            <p class='mb-2 text-red-600'>
               {selectedTweetIds().length === 1
                 ? 'Are you sure you want to delete this 1 tweet? '
                 : `Are you sure you want to delete all ${selectedTweetIds().length} tweets? `}
-              This operation is irreversible. If you would like to view them later you can download
-              your data archive from Twitter{' '}
+            </p>
+            <p class='mb-4 text-red-600'>
+              This operation is irreversible. If you would like to view these tweets later you can
+              download your data archive from Twitter{' '}
               <a
                 href='https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive'
                 target='_blank'

@@ -88,9 +88,9 @@ export const ProfanityScoreCard = (props: any) => {
         )}
       </div>
 
-      <section class='flex items-center space-x-5'>
-        <p class='flex items-center text-2xl text-slate-900'>{score}</p>
-        <div class='flex flex-auto flex-col'>
+      <section class='flex flex-col items-center space-x-5 md:flex-row'>
+        <p class='mb-2 flex items-center text-2xl text-slate-900'>{score}</p>
+        <div class='mb-2 flex flex-auto flex-col'>
           <div class='flex items-center justify-between'>
             <MetricCount
               title='Mild'

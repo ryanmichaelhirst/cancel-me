@@ -11,7 +11,7 @@ export const Tweet = (props: {
   checked: boolean
 }) => (
   <tr id={props.tweet.id_str} class='mb-4 border-b border-gray-200 pb-2 text-slate-800'>
-    <td>
+    <td class='w-10'>
       <input
         type='checkbox'
         id='selected'
@@ -24,14 +24,14 @@ export const Tweet = (props: {
         Selected
       </label>
     </td>
-    <td class=''>{props.idx}</td>
-    <td class=''>{props.tweet.text}</td>
-    <td class=''>
+    <td class='w-10'>{props.idx}</td>
+    <td class='min-w-52 break-words'>{props.tweet.text}</td>
+    <td class='w-32 break-words'>
       {props.tweet.created_at
         ? format(new Date(props.tweet.created_at), 'MMM dd, yyyy, HH:mm aa')
         : ''}
     </td>
-    <td class='flex'>
+    <td class='flex w-32'>
       <div class='space-x-3'>
         <button
           id={props.tweet.id_str}

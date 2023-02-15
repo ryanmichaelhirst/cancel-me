@@ -21,7 +21,8 @@ export async function GET({ params, request }: APIEvent) {
     const userId = userShowResp.id_str
 
     // get most recent 3200 tweets
-    const tweets = await getUserTweetsPaginated({ userId, paginate: true })
+    const paginate = process.env.NODE_ENV === 'development' ? false : true
+    const tweets = await getUserTweetsPaginated({ userId, paginate })
     const metrics = twitterLite.profanityMetrics(tweets)
 
     return json({ tweets, metrics, username: userShowResp.screen_name })
