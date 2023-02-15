@@ -19,6 +19,18 @@ export default function Donate() {
     <Page>
       <Title>Donate - Stripe</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Donate</h1>
+      <section class='mt-4'>
+        <p>
+          Consider supporting us on{' '}
+          <a
+            href='https://www.patreon.com/ryanmichaelhirst/membership'
+            target='_blank'
+            class='rounded bg-[#FF3541] py-1 px-2 text-white shadow hover:opacity-50'
+          >
+            Patreon
+          </a>
+        </p>
+      </section>
 
       <section class='mt-6'>
         <p class='text-lg text-blue-800'>Additional Benefits</p>
