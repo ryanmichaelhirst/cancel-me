@@ -7,6 +7,7 @@ import { twitterLite } from '~/lib/twitter-lite'
 
 // step 2: handle authorization from twitter login
 export async function GET({ params, request }: APIEvent) {
+  console.log('got oauth callback')
   const parsedUrl = url.parse(request.url)
   const query = parsedUrl.query
   if (!query) return json({ error: 'no query to parse' })
@@ -15,6 +16,7 @@ export async function GET({ params, request }: APIEvent) {
 
   try {
     const { oauth_token, oauth_verifier } = searchParams
+    console.log('got oauth params', { oauth_token, oauth_verifier })
 
     // request access tokens
     const resp = await twitterLite.client.getAccessToken({
@@ -24,12 +26,13 @@ export async function GET({ params, request }: APIEvent) {
 
     // reset client with access token and access token secret
     twitterLite.setClient(resp.oauth_token, resp.oauth_token_secret)
+    console.log('created client', resp)
 
     // get current user
     const accountResp = await twitterLite.client.get('account/verify_credentials', {
       include_email: true,
     })
-    console.log(accountResp)
+    console.log('got account resp', accountResp)
 
     const user = pick(accountResp, ['id_str', 'email', 'id', 'screen_name'])
 
