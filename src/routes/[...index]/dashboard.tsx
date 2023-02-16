@@ -63,7 +63,21 @@ const isNotFoundError = (error: any): error is NotFoundError => {
     }
   }
 
-  console.log('other error', error)
+  return false
+}
+
+type UnauthorizedError = {
+  errors: { code: 183; message: "You may not delete another user's status." }[]
+}
+const isUnauthorizedError = (error: any): error is UnauthorizedError => {
+  if ('errors' in error && Array.isArray(error.errors)) {
+    const errorItem = error.errors[0]
+    if ('code' in errorItem && 'message' in errorItem) {
+      return (
+        errorItem.message === "You may not delete another user's status." && errorItem.code === 183
+      )
+    }
+  }
 
   return false
 }
@@ -147,7 +161,6 @@ export default function User() {
     }
   }
 
-  // TODO: API limit is 50 requests per 15 mins - implement cloudflare queues to account for this
   const onDeleteSelectedTweets: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async () => {
     if (selectedTweetIds().length === 0) return
 
@@ -205,7 +218,12 @@ export default function User() {
         // only stop the delete process for api errors
         if (resp.error) {
           const notFoundError = isNotFoundError(resp.error)
-          if (!notFoundError) {
+          const unauthorizedError = isUnauthorizedError(resp.error)
+          if (unauthorizedError) {
+            setError("You cannot delete someone else's tweets")
+          } else if (notFoundError) {
+            // it's fine to try and delete a tweet that doesn't exist
+          } else {
             setError(
               `There was an error deleting tweet @ https://twitter.com/twitter/status/${id} because of API rate limits. You will not be able to delete tweets for another 15 minutes.`,
             )
