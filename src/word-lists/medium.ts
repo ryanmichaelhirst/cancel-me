@@ -19,5 +19,9 @@ export default [
   'asshole',
   'assmunch',
   'bangbros',
-  'barely legal',
+  'camel toe',
+  ' carpet muncher',
+  'carpetmuncher',
+  'chocolate rosebuds',
+  'clover clamps',
 ]

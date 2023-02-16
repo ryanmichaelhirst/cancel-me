@@ -18,4 +18,9 @@ export default [
   'baby batter',
   'baby juice',
   'barenaked',
+  'barely legal',
+  'camgirl',
+  'circlejerk',
+  'cleveland steamer',
+  'cornhole',
 ]

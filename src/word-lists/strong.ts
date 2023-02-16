@@ -33,4 +33,9 @@ export default [
   'beaver lips',
   'beastiality',
   'bestiality',
+  'camslut',
+  'camwhore',
+  'clusterfuck',
+  'dick',
+  'dildo',
 ]
