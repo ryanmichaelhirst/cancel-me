@@ -18,7 +18,6 @@ export const FileUpload = (props: FileUploadProps) => {
     //   })
     // ).json()
 
-    const fileUpload = formData.get('file-upload') as File
     const reader = new FileReader()
     reader.onload = async function () {
       // vercel serverless functions have a limit of 4.5MB, so we need to reduce the size of the payload
@@ -41,6 +40,10 @@ export const FileUpload = (props: FileUploadProps) => {
 
       props.onUpload(resp)
     }
+
+    const fileUpload = formData.get('file-upload') as File
+    if (fileUpload.size === 0) throw new Error('File must be selected')
+
     reader.readAsText(fileUpload)
   })
 
@@ -54,8 +57,9 @@ export const FileUpload = (props: FileUploadProps) => {
       <label for='file-upload' class='mb-4 hover:cursor-pointer'>
         In your archive zip file, upload data/tweets.js
       </label>
-      <input type='file' name='file-upload' class='mb-10 hover:cursor-pointer' />
-      <div class='flex space-x-10'>
+      <input type='file' name='file-upload' class='mb-2 hover:cursor-pointer' />
+      <div class='h-[24px] text-red-500'>{uploading.error && <p>Please select a file</p>}</div>
+      <div class='mt-8 flex space-x-10'>
         <button
           type='submit'
           class={
@@ -73,6 +77,7 @@ export const FileUpload = (props: FileUploadProps) => {
           Cancel
         </button>
       </div>
+
       {uploading.pending && (
         <div class='mt-10 flex flex-col items-center justify-center'>
           <p>Upload your archive...</p>

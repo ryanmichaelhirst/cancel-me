@@ -52,6 +52,22 @@ const DonationAlert = (props: {
   </div>
 )
 
+type NotFoundError = {
+  errors: { code: 144; message: 'No status found with that ID.' }[]
+}
+const isNotFoundError = (error: any): error is NotFoundError => {
+  if ('errors' in error && Array.isArray(error.errors)) {
+    const errorItem = error.errors[0]
+    if ('code' in errorItem && 'message' in errorItem) {
+      return errorItem.message === 'No status found with that ID.' && errorItem.code === 144
+    }
+  }
+
+  console.log('other error', error)
+
+  return false
+}
+
 export default function User() {
   // const params = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -186,10 +202,14 @@ export default function User() {
         ).json()
         // console.log(resp, counter)
 
+        // only stop the delete process for api errors
         if (resp.error) {
-          setError(
-            `There was an error deleting tweet @ https://twitter.com/twitter/status/${id} because of API rate limits. You will not be able to delete tweets for another 15 minutes.`,
-          )
+          const notFoundError = isNotFoundError(resp.error)
+          if (!notFoundError) {
+            setError(
+              `There was an error deleting tweet @ https://twitter.com/twitter/status/${id} because of API rate limits. You will not be able to delete tweets for another 15 minutes.`,
+            )
+          }
         }
 
         setProgress((prev) => {
