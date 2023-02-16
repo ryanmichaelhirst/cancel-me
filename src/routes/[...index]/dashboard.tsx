@@ -10,7 +10,7 @@ import {
 } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
 import { RouteDataArgs, Title, useRouteData, useSearchParams } from 'solid-start'
-import { createServerData$, redirect } from 'solid-start/server'
+import { createServerAction$, createServerData$, redirect } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
 import { Page } from '~/components/page'
@@ -382,7 +382,7 @@ export default function User() {
         ) : (
           <>
             <div class='mb-2 flex items-center text-2xl'>
-              <h1 class='font-bold'>Tweets</h1>
+              <h1 class='font-bold'>Tweets {filteredTweets().length}</h1>
             </div>
             <div class='flex space-x-5' role='tablist'>
               <div
@@ -393,7 +393,7 @@ export default function User() {
                   selectedTab() === 'All' ? 'text-blue-500' : 'text-slate-800',
                 )}
               >
-                All ({tweets().length})
+                All
               </div>
               <div
                 role='tab'
@@ -403,7 +403,7 @@ export default function User() {
                   selectedTab() === 'Profanities' ? 'text-blue-500' : 'text-slate-800',
                 )}
               >
-                Profanities ({tweets().filter((t) => t.isProfanity).length})
+                Profanities
               </div>
             </div>
             <hr class='my-2' />
