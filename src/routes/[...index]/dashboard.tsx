@@ -533,7 +533,7 @@ export default function User() {
       <Show when={showUploadModal()}>
         <div class='modal'>
           <div class='modal-content'>
-            <FileUpload onUpload={onUpload} />
+            <FileUpload onUpload={onUpload} onClose={() => setShowUploadModal(false)} />
           </div>
         </div>
       </Show>

@@ -1,37 +1,27 @@
 import { APIEvent, json } from 'solid-start'
 import { twitterLite } from '~/lib/twitter-lite'
-
-type HistoricalTweet = {
-  tweet: {
-    id: string
-    id_str: string
-    full_text: string
-    truncated: boolean
-    created_at: string
-  }
-}
+import { HistoricalTweet } from '~/types'
 
 export async function POST({ params, request }: APIEvent) {
   try {
-    const formData = await request.formData()
-    const fileUpload = formData.get('file-upload') as File
-
+    // file upload deprecated: vercel serverless functions have a 4.5MB limit
+    // https://vercel.com/guides/how-to-bypass-vercel-body-size-limit-serverless-functions
+    //const formData = await request.formData()
+    //const fileUpload = formData.get('file-upload') as File
     // method 1: plain text
-    const text = await fileUpload.text()
-    const safeText = text.replace('window.YTD.tweets.part0 = ', '')
+    // const text = await fileUpload.text()
+    // const safeText = text.replace('window.YTD.tweets.part0 = ', '')
+    // const historicalTweets: HistoricalTweet[] = JSON.parse(safeText)
     // method 2: streams
     // const stream = fileUpload.stream().getReader()
     // const contents = await stream.read()
     // const byteArr = contents.value
     // const decoded = new TextDecoder().decode(byteArr)
+    // const tweets = decoded.map((ht, idx) => { .... })
+    const body: { tweets: HistoricalTweet[] } = await new Response(request.body).json()
 
-    const historicalTweets: HistoricalTweet[] = JSON.parse(safeText)
-    const tweets = historicalTweets.map((ht, idx) => {
-      const { tweet } = ht
-      if (idx < 3) {
-        console.log(ht)
-      }
-
+    const historicalTweets = body.tweets
+    const tweets = historicalTweets.map(({ tweet }, idx) => {
       return {
         text: tweet.full_text,
         created_at: tweet.created_at,

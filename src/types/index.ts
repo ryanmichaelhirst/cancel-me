@@ -21,6 +21,16 @@ export interface AccountVerifyCredentialsResponse {
 
 export type User = Pick<AccountVerifyCredentialsResponse, 'id' | 'id_str' | 'email' | 'screen_name'>
 
+export type HistoricalTweet = {
+  tweet: {
+    id: string
+    id_str: string
+    full_text: string
+    truncated: boolean
+    created_at: string
+  }
+}
+
 // type TwitterTweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
 export type Tweet = {
   text: string
