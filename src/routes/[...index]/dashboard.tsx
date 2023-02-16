@@ -10,14 +10,14 @@ import {
 } from 'solid-heroicons/outline'
 import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
 import { RouteDataArgs, Title, useRouteData, useSearchParams } from 'solid-start'
-import { createServerAction$, createServerData$, redirect } from 'solid-start/server'
+import { createServerData$, redirect } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
 import { LoadingSpinner } from '~/components/loading-spinner'
 import { Page } from '~/components/page'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
-import { logout as _logoutSession } from '~/lib/session'
+// import { logout as _logoutSession } from '~/lib/session'
 import { useUser } from '~/lib/useUser'
 import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
 import { donations } from '~/util'
@@ -55,9 +55,9 @@ const DonationAlert = (props: {
 export default function User() {
   // const params = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [loggingOut, logout] = createServerAction$(async (_, { request }) => {
-    return await _logoutSession(request)
-  })
+  // const [loggingOut, logout] = createServerAction$(async (_, { request }) => {
+  //   return await _logoutSession(request)
+  // })
 
   const [tweets, setTweets] = createSignal<TweetRecord[]>([])
   const [selectedTweetIds, setSelectedTweetIds] = createSignal<string[]>([])
@@ -113,7 +113,7 @@ export default function User() {
       setLoadingTweets(false)
     } catch (err) {
       if (err instanceof SyntaxError) {
-        await logout()
+        // await logout()
       }
     }
   })
