@@ -346,7 +346,7 @@ export default function User() {
       {profanityMetrics() && (
         <section>
           <ProfanityScoreCard
-            metrics={profanityMetrics()?.metrics}
+            metrics={profanityMetrics()?.metrics!}
             username={profanityMetrics()?.screenname}
           />
         </section>
@@ -428,7 +428,7 @@ export default function User() {
               </div>
             </div>
             <hr class='my-2' />
-            <div role='tabpanel'>
+            <div role='tabpanel' class='overflow-auto'>
               <table>
                 <thead>
                   <tr class='text-left text-slate-800'>
@@ -449,7 +449,7 @@ export default function User() {
                     <th class='w-10'>#</th>
                     <th class='min-w-52 max-w-[75%]'>TWEET</th>
                     <th class='w-32'>DATE</th>
-                    <th class='w-32'></th>
+                    <th class='w-[80px]'></th>
                   </tr>
                 </thead>
                 <tbody>

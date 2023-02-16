@@ -14,6 +14,7 @@ import {
 } from 'solid-heroicons/outline'
 import { useRouteData } from 'solid-start'
 import { useDashboardRouteData } from '~/routes/[...index]/dashboard'
+import { ProfanityMetrics } from '~/types'
 
 const ColorBar = (props: { metric: number; total: number; title: string; bgColor: string }) => {
   const width = window.document.getElementById('color-bar-container')?.clientWidth ?? 100
@@ -41,7 +42,7 @@ const MetricCount = (props: any) => {
   )
 }
 
-export const ProfanityScoreCard = (props: any) => {
+export const ProfanityScoreCard = (props: { metrics: ProfanityMetrics; username?: string }) => {
   const data = useRouteData<useDashboardRouteData>()
   const isPremiumUser = () => {
     if (!data()?.donations || typeof data()?.donations === 'undefined') return
@@ -55,6 +56,7 @@ export const ProfanityScoreCard = (props: any) => {
     props.metrics.medium +
     props.metrics.strong +
     props.metrics.strongest +
+    props.metrics.safe +
     props.metrics.unrated
   const score = (() => {
     if (numProfanities() <= 10) return 'Devout Mormon'
@@ -88,8 +90,8 @@ export const ProfanityScoreCard = (props: any) => {
         )}
       </div>
 
-      <section class='flex flex-col items-center space-x-5 md:flex-row'>
-        <p class='mb-2 flex items-center text-2xl text-slate-900'>{score}</p>
+      <section class='flex flex-col items-center overflow-auto md:flex-row'>
+        <p class='mb-2 flex items-center text-2xl text-slate-900 md:mr-4'>{score}</p>
         <div class='mb-2 flex flex-auto flex-col'>
           <div class='flex items-center justify-between'>
             <MetricCount
