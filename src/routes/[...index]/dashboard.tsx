@@ -381,8 +381,9 @@ export default function User() {
           </div>
         ) : (
           <>
-            <div class='mb-2 flex items-center text-2xl'>
-              <h1 class='font-bold'>Tweets {filteredTweets().length}</h1>
+            <div class='mb-2 flex items-center'>
+              <h1 class='text-2xl font-bold'>Tweets</h1>
+              <span class='ml-2 mt-[4px] text-sm text-blue-500'>({filteredTweets().length})</span>
             </div>
             <div class='flex space-x-5' role='tablist'>
               <div
