@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { For } from 'solid-js'
 import { Title, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
@@ -28,12 +29,12 @@ export default function Scores() {
             <>
               {score.createdAt instanceof Date && (
                 <p class='mb-2 text-lg text-slate-500'>
-                  Created at: {score.createdAt.toDateString()}
+                  Created at: {format(score.createdAt, 'MMM dd, yyyy, hh:mm:ss aa')}
                 </p>
               )}
               {typeof score.createdAt === 'string' && (
                 <p class='mb-2 text-lg text-slate-500'>
-                  Created at: {new Date(score.createdAt).toDateString()}
+                  Created at: {format(new Date(score.createdAt), 'MMM dd, yyyy, hh:mm:ss aa')}
                 </p>
               )}
               <ProfanityScoreCard
