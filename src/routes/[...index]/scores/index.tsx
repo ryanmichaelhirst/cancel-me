@@ -22,24 +22,29 @@ export default function Scores() {
     <Page>
       <Title>All Scores - Cancel Me</Title>
       <p class='mb-4 text-2xl'>Scoreboard</p>
-      {data() && (
-        <For each={data()}>
-          {(score, idx) => {
-            return (
-              <>
+      <For each={data()} fallback={<p>Loading scores...</p>}>
+        {(score, idx) => {
+          return (
+            <>
+              {score.createdAt instanceof Date && (
                 <p class='mb-2 text-lg text-slate-500'>
                   Created at: {score.createdAt.toDateString()}
                 </p>
-                <ProfanityScoreCard
-                  metrics={score.payload as unknown as ProfanityMetrics}
-                  username={score.username}
-                  isInteractive={true}
-                />
-              </>
-            )
-          }}
-        </For>
-      )}
+              )}
+              {typeof score.createdAt === 'string' && (
+                <p class='mb-2 text-lg text-slate-500'>
+                  Created at: {new Date(score.createdAt).toDateString()}
+                </p>
+              )}
+              <ProfanityScoreCard
+                metrics={score.payload as unknown as ProfanityMetrics}
+                username={score.username}
+                isInteractive={true}
+              />
+            </>
+          )
+        }}
+      </For>
     </Page>
   )
 }

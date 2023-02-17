@@ -25,7 +25,6 @@ export function routeData({ params }: RouteDataArgs) {
 export default function Users() {
   const params = useParams()
   const data = useRouteData<typeof routeData>()
-  console.log(data())
 
   return (
     <Page>
@@ -36,8 +35,16 @@ export default function Users() {
       <For each={data()}>
         {(score, idx) => (
           <>
-            {/* @ts-expect-error score.createdAt: string */}
-            <p class='mb-2 text-lg text-slate-500'>Created at: {score.createdAt}</p>
+            {score.createdAt instanceof Date && (
+              <p class='mb-2 text-lg text-slate-500'>
+                Created at: {score.createdAt.toDateString()}
+              </p>
+            )}
+            {typeof score.createdAt === 'string' && (
+              <p class='mb-2 text-lg text-slate-500'>
+                Created at: {new Date(score.createdAt).toDateString()}
+              </p>
+            )}
             <ProfanityScoreCard
               metrics={score.payload as unknown as ProfanityMetrics}
               username={score.username}
