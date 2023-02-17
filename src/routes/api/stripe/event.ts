@@ -1,4 +1,3 @@
-import type { Prisma } from '@prisma/client'
 import { APIEvent, json } from 'solid-start/api'
 import { prisma } from '~/lib/prisma'
 import { stripe } from '~/lib/stripe'
@@ -32,7 +31,7 @@ const saveStripeDonation = async (event: StripeEvent) => {
         userId,
         amount: event.data.object.amount_total.toString(),
         productName: event.data.object.metadata.productName,
-        payload: event as unknown as Prisma.JsonObject,
+        payload: event as unknown as any,
       },
     })
   }

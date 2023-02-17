@@ -12,6 +12,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@types/lodash.debounce": "^4.0.7",
     "@types/lodash.pick": "^4.4.7",
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
@@ -38,6 +39,7 @@
     "classnames": "^2.3.2",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
+    "lodash.debounce": "^4.0.8",
     "lodash.pick": "^4.4.0",
     "micro": "^10.0.1",
     "prisma": "^4.9.0",

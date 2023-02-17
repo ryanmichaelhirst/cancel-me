@@ -1,5 +1,6 @@
 import { A } from '@solidjs/router'
 import classNames from 'classnames'
+import debounce from 'lodash.debounce'
 import { Icon } from 'solid-heroicons'
 import {
   bars_2,
@@ -12,18 +13,39 @@ import {
   questionMarkCircle,
   xCircle,
 } from 'solid-heroicons/outline'
+import { createEffect, createSignal, onCleanup, onMount } from 'solid-js'
 import { useRouteData } from 'solid-start'
 import { useDashboardRouteData } from '~/routes/[...index]/dashboard'
 import { ProfanityMetrics } from '~/types'
 
 const ColorBar = (props: { metric: number; total: number; title: string; bgColor: string }) => {
-  const width = window.document.getElementById('color-bar-container')?.clientWidth ?? 100
+  const [width, setWidth] = createSignal(100)
+
+  const updateWidth = () => {
+    setWidth(window.document.getElementById('color-bar-container')?.clientWidth ?? 100)
+  }
+
+  const debouncedUpdateWidth = debounce(updateWidth, 100)
+
+  onMount(() => {
+    window.addEventListener('resize', debouncedUpdateWidth)
+  })
+
+  onCleanup(() => {
+    window.removeEventListener('resize', debouncedUpdateWidth)
+  })
+
+  createEffect(() => {
+    setWidth(window.document.getElementById('color-bar-container')?.clientWidth ?? 100)
+  })
+
+  const dynamicWidth = () => `${Math.round((props.metric / props.total) * width())}px`
 
   return (
     <div
       title={props.title}
       class={classNames('h-4 rounded hover:cursor-pointer', props.bgColor)}
-      style={{ width: `${Math.round((props.metric / props.total) * width)}px` }}
+      style={{ width: dynamicWidth() }}
     />
   )
 }
