@@ -6,13 +6,6 @@ export const donations = ({ userId }: { userId: string }) => {
   return prisma.donation.findMany({ where: { userId } })
 }
 
-export const profanityScores = () => {
-  return prisma.profanityScore.findMany({
-    distinct: ['username'],
-    orderBy: [{ username: 'asc' }, { createdAt: 'desc' }],
-  })
-}
-
 export const createProfanityScore = async ({
   userId,
   username,
