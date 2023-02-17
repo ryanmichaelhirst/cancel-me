@@ -1,8 +1,35 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from '~/lib/prisma'
 import { stripe } from '~/lib/stripe'
+import { ProfanityMetrics } from '~/types'
 
 export const donations = ({ userId }: { userId: string }) => {
   return prisma.donation.findMany({ where: { userId } })
+}
+
+export const profanityScores = (username?: string) =>
+  prisma.profanityScore.findMany({
+    where: {
+      ...(username && { username }),
+    },
+  })
+
+export const createProfanityScore = async ({
+  userId,
+  username,
+  metrics,
+}: {
+  userId: string
+  username: string
+  metrics: ProfanityMetrics
+}) => {
+  return await prisma.profanityScore.create({
+    data: {
+      userId,
+      username,
+      payload: metrics as unknown as Prisma.InputJsonObject,
+    },
+  })
 }
 
 const toNumber = (value: string | number) => (typeof value === 'string' ? parseInt(value) : value)

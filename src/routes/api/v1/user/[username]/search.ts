@@ -1,5 +1,6 @@
 import { APIEvent, json } from 'solid-start'
 import { twitterLite } from '~/lib/twitter-lite'
+import { createProfanityScore } from '~/util'
 import { getUserTweetsPaginated } from '../[id]/tweets'
 
 interface UserShowRequest {
@@ -24,6 +25,11 @@ export async function GET({ params, request }: APIEvent) {
     const paginate = process.env.NODE_ENV === 'development' ? false : true
     const tweets = await getUserTweetsPaginated({ userId, paginate })
     const metrics = twitterLite.profanityMetrics(tweets)
+    await createProfanityScore({
+      userId,
+      username: params.username,
+      metrics,
+    })
 
     return json({ tweets, metrics, username: userShowResp.screen_name })
   } catch (error) {

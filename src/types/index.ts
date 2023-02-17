@@ -26,7 +26,6 @@ export type HistoricalTweet = {
     id: string
     id_str: string
     full_text: string
-    truncated: boolean
     created_at: string
   }
 }

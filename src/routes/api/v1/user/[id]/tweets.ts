@@ -4,6 +4,7 @@ import { APIEvent, json } from 'solid-start'
 import url from 'url'
 import { twitterLite } from '~/lib/twitter-lite'
 import { Tweet } from '~/types'
+import { createProfanityScore } from '~/util'
 
 export const getLowestId = (tweets: Tweet[]) => {
   const ids = tweets.map((t) => t.id)
@@ -71,19 +72,27 @@ export async function GET({ params, request }: APIEvent) {
   try {
     const parsedUrl = url.parse(request.url)
     const query = parsedUrl.query
-    const { paginate } = query ? querystring.parse(query) : { paginate: false }
-    const userId = params.userId
+    const { paginate, username } = query
+      ? querystring.parse(query)
+      : { paginate: false, username: '' }
+    const userId = params.id
+    const paginateParam = !paginate || paginate === 'false' ? false : true
 
     // if we aren't paginating, return the first 200 tweets
-    if (!query || !paginate || paginate === 'false' || process.env.NODE_ENV === 'development') {
-      const tweets = await getUserTweets({ userId })
-      const metrics = twitterLite.profanityMetrics(tweets)
+    let fetchFunc =
+      !query || !paginate || paginate === 'false' || process.env.NODE_ENV === 'development'
+        ? getUserTweets
+        : getUserTweetsPaginated
 
-      return json({ tweets, metrics })
-    }
-
-    const tweets = await getUserTweetsPaginated({ userId, paginate: true })
+    const tweets = await fetchFunc({ userId, paginate: paginateParam })
     const metrics = twitterLite.profanityMetrics(tweets)
+    // save profanity score to db
+    await createProfanityScore({
+      userId: params.id,
+      // @ts-ignore
+      username,
+      metrics,
+    })
 
     return json({ tweets, metrics })
   } catch (err) {

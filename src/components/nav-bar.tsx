@@ -28,6 +28,12 @@ export const Navbar = () => {
         Home
       </A>
       <A
+        href='/scores'
+        class={classNames('hover:text-blue-700', path() === '/scores' && 'text-blue-500')}
+      >
+        Scores
+      </A>
+      <A
         href='/donate'
         class={classNames('hover:text-blue-700', path() === '/donate' && 'text-blue-500')}
       >

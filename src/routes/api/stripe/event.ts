@@ -4,7 +4,7 @@ import { prisma } from '~/lib/prisma'
 import { stripe } from '~/lib/stripe'
 import { StripeError, StripeEvent } from '~/types'
 
-const signingSecret = process.env.STRIPE_SIGNING_SECRET
+const signingSecret = process.env.STRIPE_SIGNING_SECRET ?? ''
 
 const isStripeError = (err: unknown): err is StripeError =>
   typeof err === 'object' && err !== null && 'message' in err

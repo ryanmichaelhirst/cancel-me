@@ -1,10 +1,10 @@
 import pick from 'lodash.pick'
 import { createRouteAction } from 'solid-start'
 import { LoadingSpinner } from '~/components/loading-spinner'
-import { HistoricalTweet, ProfanityMetrics, Tweet as TweetRecord } from '~/types'
+import { HistoricalTweet } from '~/types'
 
 interface FileUploadProps {
-  onUpload: (resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics }) => void
+  onUpload: (tweets: HistoricalTweet[]) => void
   onClose: () => void
 }
 
@@ -31,14 +31,7 @@ export const FileUpload = (props: FileUploadProps) => {
         return { tweet: condensedTweet }
       })
 
-      const resp = await (
-        await fetch(`/api/v1/user/upload`, {
-          body: JSON.stringify({ tweets }),
-          method: 'POST',
-        })
-      ).json()
-
-      props.onUpload(resp)
+      props.onUpload(tweets)
     }
 
     const fileUpload = formData.get('file-upload') as File

@@ -19,7 +19,7 @@ import { ProgressBar } from '~/components/progress-bar'
 import { Tweet } from '~/components/tweet'
 import { logout as _logoutSession } from '~/lib/session'
 import { useUser } from '~/lib/useUser'
-import type { ProfanityMetrics, Tweet as TweetRecord } from '~/types'
+import type { HistoricalTweet, ProfanityMetrics, Tweet as TweetRecord } from '~/types'
 import { donations } from '~/util'
 
 export const routeData = ({ params }: RouteDataArgs) => {
@@ -82,7 +82,7 @@ const isUnauthorizedError = (error: any): error is UnauthorizedError => {
   return false
 }
 
-export default function User() {
+export default function Dashboard() {
   // const params = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const [loggingOut, logout] = createServerAction$(async (_, { request }) => {
@@ -131,7 +131,11 @@ export default function User() {
     try {
       setLoadingTweets(true)
       // control loading all tweets with ?paginate=(true|false)
-      const resp = await fetch(`/api/v1/user/${data()?.user.id_str}/tweets?paginate=true`)
+      const resp = await fetch(
+        `/api/v1/user/${data()?.user.id_str}/tweets?paginate=true&username=${
+          data()?.user.screen_name
+        }`,
+      )
       const json = await resp.json()
       const { tweets, metrics } = json
       setTweets(tweets)
@@ -283,7 +287,14 @@ export default function User() {
     setSelectedTab(tab)
   }
 
-  const onUpload = (resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics }) => {
+  const onUpload = async (tweets: HistoricalTweet[]) => {
+    const resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics } = await (
+      await fetch(`/api/v1/user/${data()?.user.id_str}/upload`, {
+        body: JSON.stringify({ tweets, username: data()?.user.screen_name }),
+        method: 'POST',
+      })
+    ).json()
+
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, screename: data()?.user?.screen_name })
     setShowUploadModal(false)
@@ -301,7 +312,7 @@ export default function User() {
 
   return (
     <Page>
-      <Title>Dashboard</Title>
+      <Title>Dashboard - CancelMe</Title>
       <div class='my-5 flex items-center space-x-5'>
         <h1 class='text-5xl text-blue-800'>Dashboard</h1>
         <section class='flex'>
