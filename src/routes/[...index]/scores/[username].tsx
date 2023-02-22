@@ -85,6 +85,8 @@ export default function Users() {
 
       <Meta name='og:url' content={`https://www.cancelme.io/scores/${params.username}`} />
       <Meta name='og:type' content='website' />
+      <Meta name='og:title' content={`${params.username} Score - Cancel Me`} />
+      <Meta name='og:description' content={`${params.username} Cancel Me Score`} />
       <Meta name='og:image' content={imageDataUrl() ?? ''} />
 
       <Page>
