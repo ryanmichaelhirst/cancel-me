@@ -1,7 +1,7 @@
 import { MetaContext } from '@solidjs/meta'
 import { format } from 'date-fns'
 import { toPng } from 'html-to-image'
-import { createSignal, For, onMount, useContext } from 'solid-js'
+import { createEffect, createSignal, For, onMount, useContext } from 'solid-js'
 import { Meta, RouteDataArgs, Title, useParams, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { Page } from '~/components/page'
@@ -37,14 +37,18 @@ export default function Users() {
 
     const dataUrl = await toPng(element)
     setImageDataUrl(dataUrl)
+  }
 
+  onMount(generateImage)
+
+  createEffect(() => {
     // set meta tags dynamically https://github.com/solidjs/solid-meta
-    if (context) {
+    if (imageDataUrl() && context) {
       context.addClientTag({
         tag: 'meta',
         props: {
           name: 'twitter:image',
-          content: dataUrl,
+          content: imageDataUrl(),
         },
         id: 'twitter:image',
       })
@@ -66,16 +70,7 @@ export default function Users() {
         id: 'twitter:description',
       })
     }
-  }
-
-  onMount(generateImage)
-
-  // // update the meta tag when the imageDataUrl signal is updated
-  // setImageDataUrl.subscribe((dataUrl) => {
-  //   if (dataUrl) {
-  //     setTag('twitter:image', { content: dataUrl })
-  //   }
-  // })
+  })
 
   return (
     <>
