@@ -74,20 +74,31 @@ export default function Users() {
 
   return (
     <>
-      <Meta name='description' content={`${params.username} Cancel Me Score`} />
+      <Meta name='description' content={`${params.username} CancelMe Score`} />
+      <Meta name='robots' content='index,follow,max-image-preview:large' />
 
       {/* validated with Twitter Card Validator: https://cards-dev.twitter.com/validator */}
       {/* testable @ https://dev.cancelme.io/scores/__rmbh */}
       <Meta name='twitter:card' content='summary_large_image' />
-      <Meta name='twitter:title' content={`${params.username} Score - Cancel Me`} />
-      <Meta name='twitter:description' content={`${params.username} Cancel Me Score`} />
-      <Meta name='twitter:image' content={imageDataUrl() ?? ''} />
+      <Meta name='twitter:site' content='@CancelMe' />
+      <Meta name='twitter:title' content={`${params.username} Score - CancelMe`} />
+      <Meta name='twitter:description' content={`${params.username} CancelMe Score`} />
+      <Meta name='twitter:creator' content={params.username} />
+      {/* <Meta name='twitter:image' content={imageDataUrl() ?? ''} /> */}
+      <Meta
+        name='twitter:image:src'
+        content={'https://miro.medium.com/max/1024/0*VsJFrT07L6k-lbx9'}
+      />
+      <Meta
+        name='twitter:tile:image'
+        content='https://miro.medium.com/max/1024/0*VsJFrT07L6k-lbx9'
+      />
 
       <Meta name='og:url' content={`https://www.cancelme.io/scores/${params.username}`} />
       <Meta name='og:type' content='website' />
-      <Meta name='og:title' content={`${params.username} Score - Cancel Me`} />
-      <Meta name='og:description' content={`${params.username} Cancel Me Score`} />
-      <Meta name='og:image' content={imageDataUrl() ?? ''} />
+      <Meta name='og:title' content={`${params.username} Score - CancelMe`} />
+      <Meta name='og:description' content={`${params.username} CancelMe Score`} />
+      <Meta name='og:image' content={'https://miro.medium.com/max/1024/0*VsJFrT07L6k-lbx9'} />
 
       <Page>
         <Title>{params.username} Score - Cancel Me</Title>
