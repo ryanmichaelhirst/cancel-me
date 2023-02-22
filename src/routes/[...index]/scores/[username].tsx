@@ -38,6 +38,7 @@ export default function Users() {
     const dataUrl = await toPng(element)
     setImageDataUrl(dataUrl)
 
+    // set meta tags dynamically https://github.com/solidjs/solid-meta
     if (context) {
       context.addClientTag({
         tag: 'meta',
@@ -86,6 +87,10 @@ export default function Users() {
       <Meta name='twitter:title' content={`${params.username} Score - Cancel Me`} />
       <Meta name='twitter:description' content={`${params.username} Cancel Me Score`} />
       <Meta name='twitter:image' content={imageDataUrl() ?? ''} />
+
+      <Meta name='og:url' content={`https://www.cancelme.io/scores/${params.username}`} />
+      <Meta name='og:type' content='website' />
+      <Meta name='og:image' content={imageDataUrl() ?? ''} />
 
       <Page>
         <Title>{params.username} Score - Cancel Me</Title>
