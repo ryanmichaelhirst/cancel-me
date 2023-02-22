@@ -1,5 +1,6 @@
-import { A } from '@solidjs/router'
+import { A, useParams } from '@solidjs/router'
 import classNames from 'classnames'
+import { toPng } from 'html-to-image'
 import { Icon } from 'solid-heroicons'
 import {
   archiveBoxXMark,
@@ -82,8 +83,22 @@ const isUnauthorizedError = (error: any): error is UnauthorizedError => {
   return false
 }
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [prefix, base64] = dataUrl.split(',')
+  const byteString = atob(base64)
+  const mime = prefix.split(':')[1].split(';')[0]
+  const arrayBuffer = new ArrayBuffer(byteString.length)
+  const uintArray = new Uint8Array(arrayBuffer)
+
+  for (let i = 0; i < byteString.length; i++) {
+    uintArray[i] = byteString.charCodeAt(i)
+  }
+
+  return new Blob([arrayBuffer], { type: mime })
+}
+
 export default function Dashboard() {
-  // const params = useParams()
+  const params = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const [loggingOut, logout] = createServerAction$(async (_, { request }) => {
     return await _logoutSession(request)
@@ -127,6 +142,31 @@ export default function Dashboard() {
     else setSelectedTweetIds((prev) => prev.filter((tweetId) => tweetId !== value))
   }
 
+  const generateImage = async (key: string): Promise<void> => {
+    const element = document.getElementById('profanity-score-card')
+    if (!element) {
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve()
+        }, 1000)
+      })
+
+      return generateImage(key)
+    }
+
+    const dataUrl = await toPng(element)
+    const blob = dataUrlToBlob(dataUrl)
+    if (!blob) return
+
+    const formData = new FormData()
+    formData.append('image', blob, key)
+
+    await fetch('/api/aws/upload-img', {
+      method: 'POST',
+      body: formData,
+    })
+  }
+
   onMount(async () => {
     try {
       setLoadingTweets(true)
@@ -150,6 +190,8 @@ export default function Dashboard() {
         await logout()
       }
     }
+
+    await generateImage(`${data()?.user.screen_name}/dashboard.png`)
   })
 
   const onSelectAll = () => {
@@ -280,6 +322,7 @@ export default function Dashboard() {
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, screenname: username })
     setLoadingTweets(false)
+    await generateImage(`${username}/search.png`)
   }
 
   const onTabChange: JSX.EventHandler<HTMLDivElement, Event> = (e) => {
@@ -290,13 +333,14 @@ export default function Dashboard() {
   const onUpload = async (tweets: HistoricalTweet[]) => {
     const resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics } = await (
       await fetch(`/api/v1/user/${data()?.user.id_str}/upload`, {
-        body: JSON.stringify({ tweets, username: data()?.user.screen_name }),
+        body: JSON.stringify({ tweets, username: data()?.user?.screen_name }),
         method: 'POST',
       })
     ).json()
 
     setTweets(resp.tweets)
-    setProfanityMetrics({ metrics: resp.metrics, screename: data()?.user?.screen_name })
+    setProfanityMetrics({ metrics: resp.metrics, screenname: data()?.user?.screen_name })
+    await generateImage(`${data()?.user.screen_name}/upload.png`)
     setShowUploadModal(false)
   }
 

@@ -1,7 +1,5 @@
-import { MetaContext } from '@solidjs/meta'
 import { format } from 'date-fns'
-import { toPng } from 'html-to-image'
-import { createEffect, createSignal, For, onMount, useContext } from 'solid-js'
+import { createSignal, For, onMount } from 'solid-js'
 import { Meta, RouteDataArgs, Title, useParams, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { Page } from '~/components/page'
@@ -28,49 +26,22 @@ export function routeData({ params }: RouteDataArgs) {
 export default function Users() {
   const params = useParams()
   const data = useRouteData<typeof routeData>()
-  const [imageDataUrl, setImageDataUrl] = createSignal<string | null>(null)
-  const context = useContext(MetaContext)
+  const [imageUrl, setImageUrl] = createSignal<string | null>(null)
 
   const generateImage = async () => {
-    const element = document.getElementById(`${params.username}-0`)
-    if (!element) return
+    const baseUrl = `https://cancel-me.s3.amazonaws.com/${params.username}`
+    const [dashboardReq, searchReq, uploadReq] = await Promise.all([
+      fetch(`${baseUrl}/dashboard.png`),
+      fetch(`${baseUrl}/search.png`),
+      fetch(`${baseUrl}/upload.png`),
+    ])
 
-    const dataUrl = await toPng(element)
-    setImageDataUrl(dataUrl)
+    if (uploadReq.ok) setImageUrl(`${baseUrl}/upload.png`)
+    else if (searchReq.ok) setImageUrl(`${baseUrl}/search.png`)
+    else if (dashboardReq.ok) setImageUrl(`${baseUrl}/dashboard.png`)
   }
 
   onMount(generateImage)
-
-  createEffect(() => {
-    // set meta tags dynamically https://github.com/solidjs/solid-meta
-    if (imageDataUrl() && context) {
-      context.addClientTag({
-        tag: 'meta',
-        props: {
-          name: 'twitter:image',
-          content: imageDataUrl(),
-        },
-        id: 'twitter:image',
-      })
-
-      context.addClientTag({
-        tag: 'meta',
-        props: {
-          name: 'twitter:card',
-          content: 'summary_large_image',
-        },
-        id: 'twitter:card',
-      })
-      context.addClientTag({
-        tag: 'meta',
-        props: {
-          name: 'twitter:description',
-          content: `${params.username} Cancel Me Score`,
-        },
-        id: 'twitter:description',
-      })
-    }
-  })
 
   return (
     <>
@@ -84,35 +55,19 @@ export default function Users() {
       <Meta name='twitter:title' content={`${params.username} Score - CancelMe`} />
       <Meta name='twitter:description' content={`${params.username} CancelMe Score`} />
       <Meta name='twitter:creator' content={params.username} />
-      {/* <Meta name='twitter:image' content={imageDataUrl() ?? ''} /> */}
-      <Meta
-        name='twitter:image:src'
-        content={'https://miro.medium.com/max/1024/0*VsJFrT07L6k-lbx9'}
-      />
-      <Meta
-        name='twitter:tile:image'
-        content='https://miro.medium.com/max/1024/0*VsJFrT07L6k-lbx9'
-      />
+      <Meta name='twitter:image' content={imageUrl() ?? ''} />
 
       <Meta name='og:url' content={`https://www.cancelme.io/scores/${params.username}`} />
       <Meta name='og:type' content='website' />
       <Meta name='og:title' content={`${params.username} Score - CancelMe`} />
       <Meta name='og:description' content={`${params.username} CancelMe Score`} />
-      <Meta name='og:image' content={'https://miro.medium.com/max/1024/0*VsJFrT07L6k-lbx9'} />
+      <Meta name='og:image' content={imageUrl() ?? ''} />
 
       <Page>
         <Title>{params.username} Score - Cancel Me</Title>
         <p class='mb-4 text-2xl'>
           Scores for <span class='text-blue-500'>{params.username}</span>
         </p>
-        {typeof imageDataUrl() === 'string' && (
-          <img
-            // src={window.URL.createObjectURL(new Blob([imageDataUrl()], { type: 'image/png' }))}
-            hidden={true}
-            // @ts-expect-error the type guard doesn't narrow the solidjs type here?
-            src={imageDataUrl()}
-          />
-        )}
         <For each={data()}>
           {(score, idx) => (
             <div id={`${params.username}-${idx()}`}>
