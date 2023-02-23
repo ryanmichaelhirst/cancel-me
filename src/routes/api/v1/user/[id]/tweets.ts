@@ -54,7 +54,7 @@ export const getUserTweetsPaginated = async ({
 
   // fixes this vercel function error
   // [ERROR] [1676162159910] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
-  if (tweets.length > 3200 || newMaxId.toString() === 'Infinity' || newMaxId === maxId) {
+  if (tweets.length >= 2000 || newMaxId.toString() === 'Infinity' || newMaxId === maxId) {
     return tweets
   }
 
