@@ -348,6 +348,22 @@ export default function Dashboard() {
 
   const onCloseAlert = () => setSearchParams({ transaction: null })
 
+  const onShareOnTwitter = () => {
+    const text = 'Check out my score on cancelme.io!'
+    const hashtags = 'CancelMe'
+    const url = `https://cancel-me.io/scores/${data()?.user?.screen_name}`
+
+    var tweetUrl =
+      'https://twitter.com/intent/tweet?text=' +
+      encodeURIComponent(text) +
+      '&hashtags=' +
+      encodeURIComponent(hashtags) +
+      '&url=' +
+      encodeURIComponent(url)
+
+    window.open(tweetUrl)
+  }
+
   const filteredTweets = () => {
     if (selectedTab() === 'All') return tweets()
 
@@ -420,6 +436,13 @@ export default function Dashboard() {
 
       {profanityMetrics() && (
         <section>
+          <button
+            onClick={onShareOnTwitter}
+            class='mb-1 flex items-center rounded bg-[#55ADEE] py-1 px-4 shadow hover:opacity-70'
+          >
+            <img class='h-[24px] w-[24px]' src='/images/twitter.png' alt='Twitter icon' />
+            <span class='ml-1 text-sm text-white'>Share on Twitter</span>
+          </button>
           <ProfanityScoreCard
             metrics={profanityMetrics()?.metrics!}
             username={profanityMetrics()?.screenname}
