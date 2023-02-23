@@ -142,7 +142,7 @@ export default function Dashboard() {
     else setSelectedTweetIds((prev) => prev.filter((tweetId) => tweetId !== value))
   }
 
-  const generateImage = async (action: string): Promise<void> => {
+  const generateImage = async (action: string, screenname: string): Promise<void> => {
     const element = document.getElementById('profanity-score-card')
     if (!element) {
       await new Promise<void>((resolve) => {
@@ -151,7 +151,7 @@ export default function Dashboard() {
         }, 1000)
       })
 
-      return generateImage(action)
+      return generateImage(action, screenname)
     }
 
     const dataUrl = await toPng(element)
@@ -161,7 +161,7 @@ export default function Dashboard() {
     const formData = new FormData()
     formData.append('image', blob)
     formData.append('action', action)
-    formData.append('screenname', data()?.user.screen_name ?? '')
+    formData.append('screenname', screenname)
 
     await fetch('/api/aws/upload-img', {
       method: 'POST',
@@ -193,7 +193,7 @@ export default function Dashboard() {
       }
     }
 
-    await generateImage('mount')
+    await generateImage('mount', data()?.user.screen_name ?? '')
   })
 
   const onSelectAll = () => {
@@ -324,7 +324,7 @@ export default function Dashboard() {
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, screenname: username })
     setLoadingTweets(false)
-    await generateImage('search')
+    await generateImage('search', username)
   }
 
   const onTabChange: JSX.EventHandler<HTMLDivElement, Event> = (e) => {
@@ -342,7 +342,7 @@ export default function Dashboard() {
 
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, screenname: data()?.user?.screen_name })
-    await generateImage('upload')
+    await generateImage('upload', data()?.user?.screen_name ?? '')
     setShowUploadModal(false)
   }
 

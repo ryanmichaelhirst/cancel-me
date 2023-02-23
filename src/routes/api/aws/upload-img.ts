@@ -35,6 +35,7 @@ export async function POST({ request }: APIEvent) {
   const screenname = formData.get('screenname')?.toString()
   const objectKey = `${screenname}/twitter_card.png`
   console.log('the blob', blob.size, blob.name)
+  console.log('objectKey', objectKey, action)
 
   let objectImg
   try {
