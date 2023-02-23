@@ -33,12 +33,15 @@
     "vite": "^3.1.8"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.276.0",
+    "@aws-sdk/s3-request-presigner": "^3.276.0",
     "@prisma/client": "^4.9.0",
-    "@solidjs/meta": "^0.28.0",
+    "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.6.0",
     "classnames": "^2.3.2",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
+    "html-to-image": "^1.11.11",
     "lodash.debounce": "^4.0.8",
     "lodash.pick": "^4.4.0",
     "micro": "^10.0.1",

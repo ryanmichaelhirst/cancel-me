@@ -27,7 +27,7 @@ export default function Index() {
 
   return (
     <Page>
-      <Title>Home - Cancel Me</Title>
+      <Title>CancelMe - Home</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Time to cancel yourself</h1>
 
       <section class='mt-6'>

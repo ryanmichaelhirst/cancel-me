@@ -17,7 +17,7 @@ export default function Donate() {
 
   return (
     <Page>
-      <Title>Donate - Stripe</Title>
+      <Title>CancelMe - Donate</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Donate</h1>
       <section class='mt-4'>
         <p>

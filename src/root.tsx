@@ -1,4 +1,5 @@
 // @refresh reload
+// import { MetaProvider } from '@solidjs/meta'
 import { Suspense } from 'solid-js'
 import {
   Body,
@@ -17,7 +18,7 @@ export default function Root() {
   return (
     <Html lang='en'>
       <Head>
-        <Title>SolidStart - Bare</Title>
+        <Title>CancelMe</Title>
         <Meta charset='utf-8' />
         <Meta name='viewport' content='width=device-width, initial-scale=1' />
         {/* <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script> */}

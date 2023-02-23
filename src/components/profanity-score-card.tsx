@@ -112,7 +112,7 @@ export const ProfanityScoreCard = (props: {
     props.metrics.unrated +
     props.metrics.safe
 
-  const score = (() => {
+  const score = () => {
     if (numProfanities() === 0) return 'Devout Mormon'
     if (numProfanities() <= 25) return 'Is trying to get closer to God'
     if (numProfanities() <= 50) return 'Only swears when mom is not around'
@@ -131,18 +131,18 @@ export const ProfanityScoreCard = (props: {
     if (numProfanities() <= 375) return 'Curse connoisseur'
 
     return 'Obscenity oracle'
-  })()
+  }
 
   return (
     <A href={`/scores/${props.username}`}>
-      <div class='mb-10 rounded border py-2 px-6 shadow-lg'>
+      <div class='mb-10 rounded border bg-white py-2 px-6 shadow-lg' id='profanity-score-card'>
         <div class='flex items-center space-x-3'>
           <p class='text-sm text-slate-500'>{props.username}</p>
           <MembershipStatus isInteractive={props.isInteractive} isPremiumUser={isPremiumUser()} />
         </div>
 
         <section class='flex flex-col items-center overflow-auto md:flex-row'>
-          <p class='mb-2 flex items-center text-2xl text-slate-900 md:mr-4'>{score}</p>
+          <p class='mb-2 flex items-center text-2xl text-slate-900 md:mr-4'>{score()}</p>
           <div class='mb-2 flex flex-auto flex-col'>
             <div class='flex items-center justify-between'>
               <MetricCount

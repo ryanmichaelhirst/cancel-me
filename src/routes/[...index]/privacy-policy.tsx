@@ -6,7 +6,7 @@ const Label = (props: { text: string }) => <p class='my-4 text-lg'>{props.text}<
 export default function TermsOfService() {
   return (
     <Page>
-      <Title>Privacy Policy - Cancel Me</Title>
+      <Title>CancelMe - Privacy Policy</Title>
       <h1 class='mt-10 text-5xl text-blue-800'>Privacy Policy</h1>
       <section class='my-5'>
         <Label text='Last updated: 02/15/2023' />
