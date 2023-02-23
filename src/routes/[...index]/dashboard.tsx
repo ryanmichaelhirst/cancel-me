@@ -142,7 +142,7 @@ export default function Dashboard() {
     else setSelectedTweetIds((prev) => prev.filter((tweetId) => tweetId !== value))
   }
 
-  const generateImage = async (key: string): Promise<void> => {
+  const generateImage = async (action: string): Promise<void> => {
     const element = document.getElementById('profanity-score-card')
     if (!element) {
       await new Promise<void>((resolve) => {
@@ -151,7 +151,7 @@ export default function Dashboard() {
         }, 1000)
       })
 
-      return generateImage(key)
+      return generateImage(action)
     }
 
     const dataUrl = await toPng(element)
@@ -159,7 +159,9 @@ export default function Dashboard() {
     if (!blob) return
 
     const formData = new FormData()
-    formData.append('image', blob, key)
+    formData.append('image', blob)
+    formData.append('action', action)
+    formData.append('screenname', data()?.user.screen_name ?? '')
 
     await fetch('/api/aws/upload-img', {
       method: 'POST',
@@ -191,7 +193,7 @@ export default function Dashboard() {
       }
     }
 
-    await generateImage(`${data()?.user.screen_name}/dashboard.png`)
+    await generateImage('mount')
   })
 
   const onSelectAll = () => {
@@ -322,7 +324,7 @@ export default function Dashboard() {
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, screenname: username })
     setLoadingTweets(false)
-    await generateImage(`${username}/search.png`)
+    await generateImage('search')
   }
 
   const onTabChange: JSX.EventHandler<HTMLDivElement, Event> = (e) => {
@@ -340,7 +342,7 @@ export default function Dashboard() {
 
     setTweets(resp.tweets)
     setProfanityMetrics({ metrics: resp.metrics, screenname: data()?.user?.screen_name })
-    await generateImage(`${data()?.user.screen_name}/upload.png`)
+    await generateImage('upload')
     setShowUploadModal(false)
   }
 
@@ -356,7 +358,7 @@ export default function Dashboard() {
 
   return (
     <Page>
-      <Title>Dashboard - CancelMe</Title>
+      <Title>CancelMe - Dashboard</Title>
       <div class='my-5 flex items-center space-x-5'>
         <h1 class='text-5xl text-blue-800'>Dashboard</h1>
         <section class='flex'>

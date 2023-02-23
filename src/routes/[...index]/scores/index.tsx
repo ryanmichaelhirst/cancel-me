@@ -21,7 +21,7 @@ export default function Scores() {
 
   return (
     <Page>
-      <Title>All Scores - Cancel Me</Title>
+      <Title>CancelMe - Scores</Title>
       <p class='mb-4 text-2xl'>Scoreboard</p>
       <For each={data()} fallback={<p>Loading scores...</p>}>
         {(score, idx) => {

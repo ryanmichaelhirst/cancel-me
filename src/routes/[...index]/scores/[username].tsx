@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { createSignal, For, onMount } from 'solid-js'
+import { For } from 'solid-js'
 import { Meta, RouteDataArgs, Title, useParams, useRouteData } from 'solid-start'
 import { createServerData$ } from 'solid-start/server'
 import { Page } from '~/components/page'
@@ -26,45 +26,44 @@ export function routeData({ params }: RouteDataArgs) {
 export default function Users() {
   const params = useParams()
   const data = useRouteData<typeof routeData>()
-  const [imageUrl, setImageUrl] = createSignal<string | null>(null)
-
-  const generateImage = async () => {
-    const baseUrl = `https://cancel-me.s3.amazonaws.com/${params.username}`
-    const [dashboardReq, searchReq, uploadReq] = await Promise.all([
-      fetch(`${baseUrl}/dashboard.png`),
-      fetch(`${baseUrl}/search.png`),
-      fetch(`${baseUrl}/upload.png`),
-    ])
-
-    if (uploadReq.ok) setImageUrl(`${baseUrl}/upload.png`)
-    else if (searchReq.ok) setImageUrl(`${baseUrl}/search.png`)
-    else if (dashboardReq.ok) setImageUrl(`${baseUrl}/dashboard.png`)
-  }
-
-  onMount(generateImage)
 
   return (
     <>
-      <Meta name='description' content={`${params.username} CancelMe Score`} />
+      <Meta
+        name='description'
+        content={`View ${params.username} score card for their cancel worthy tweets`}
+      />
       <Meta name='robots' content='index,follow,max-image-preview:large' />
 
       {/* validated with Twitter Card Validator: https://cards-dev.twitter.com/validator */}
       {/* testable @ https://dev.cancelme.io/scores/__rmbh */}
       <Meta name='twitter:card' content='summary_large_image' />
       <Meta name='twitter:site' content='@CancelMe' />
-      <Meta name='twitter:title' content={`${params.username} Score - CancelMe`} />
-      <Meta name='twitter:description' content={`${params.username} CancelMe Score`} />
+      <Meta name='twitter:title' content={`CancelMe - ${params.username} Score`} />
+      <Meta
+        name='twitter:description'
+        content={`View ${params.username} score card for their cancel worthy tweets`}
+      />
       <Meta name='twitter:creator' content={params.username} />
-      <Meta name='twitter:image' content={`https://cancel-me.s3.amazonaws.com/${params.username}/dashboard.png`} />
+      <Meta
+        name='twitter:image'
+        content={`https://cancel-me.s3.amazonaws.com/${params.username}/twitter_card.png`}
+      />
 
       <Meta name='og:url' content={`https://www.cancelme.io/scores/${params.username}`} />
       <Meta name='og:type' content='website' />
-      <Meta name='og:title' content={`${params.username} Score - CancelMe`} />
-      <Meta name='og:description' content={`${params.username} CancelMe Score`} />
-      <Meta name='og:image' content={`https://cancel-me.s3.amazonaws.com/${params.username}/dashboard.png`} />
+      <Meta name='og:title' content={`CancelMe - ${params.username} Score`} />
+      <Meta
+        name='og:description'
+        content={`View ${params.username} score card for their cancel worthy tweets`}
+      />
+      <Meta
+        name='og:image'
+        content={`https://cancel-me.s3.amazonaws.com/${params.username}/twitter_card.png`}
+      />
 
       <Page>
-        <Title>{params.username} Score - Cancel Me</Title>
+        <Title>CancelMe - {params.username} Score</Title>
         <p class='mb-4 text-2xl'>
           Scores for <span class='text-blue-500'>{params.username}</span>
         </p>
