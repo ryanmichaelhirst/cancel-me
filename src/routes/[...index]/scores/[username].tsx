@@ -55,13 +55,13 @@ export default function Users() {
       <Meta name='twitter:title' content={`${params.username} Score - CancelMe`} />
       <Meta name='twitter:description' content={`${params.username} CancelMe Score`} />
       <Meta name='twitter:creator' content={params.username} />
-      <Meta name='twitter:image' content={imageUrl() ?? ''} />
+      <Meta name='twitter:image' content={`https://cancel-me.s3.amazonaws.com/${params.username}/dashboard.png`} />
 
       <Meta name='og:url' content={`https://www.cancelme.io/scores/${params.username}`} />
       <Meta name='og:type' content='website' />
       <Meta name='og:title' content={`${params.username} Score - CancelMe`} />
       <Meta name='og:description' content={`${params.username} CancelMe Score`} />
-      <Meta name='og:image' content={imageUrl() ?? ''} />
+      <Meta name='og:image' content={`https://cancel-me.s3.amazonaws.com/${params.username}/dashboard.png`} />
 
       <Page>
         <Title>{params.username} Score - Cancel Me</Title>
