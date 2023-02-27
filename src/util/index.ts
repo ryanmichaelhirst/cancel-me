@@ -2,6 +2,8 @@ import { prisma } from '~/lib/prisma'
 import { stripe } from '~/lib/stripe'
 import { ProfanityMetrics } from '~/types'
 
+export const TWITTER_CARD_NAME = 'score_card.png'
+
 export const donations = ({ userId }: { userId: string }) => {
   return prisma.donation.findMany({ where: { userId } })
 }

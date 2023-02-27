@@ -6,6 +6,7 @@ import { Page } from '~/components/page'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { prisma } from '~/lib/prisma'
 import { ProfanityMetrics } from '~/types'
+import { TWITTER_CARD_NAME } from '~/util'
 
 export function routeData({ params }: RouteDataArgs) {
   return createServerData$(
@@ -47,7 +48,7 @@ export default function Users() {
       <Meta name='twitter:creator' content={params.username} />
       <Meta
         name='twitter:image'
-        content={`https://cancel-me.s3.amazonaws.com/${params.username}/twitter_card.png`}
+        content={`https://cancel-me.s3.amazonaws.com/${params.username}/${TWITTER_CARD_NAME}`}
       />
 
       <Meta name='og:url' content={`https://www.cancelme.io/scores/${params.username}`} />
@@ -59,7 +60,7 @@ export default function Users() {
       />
       <Meta
         name='og:image'
-        content={`https://cancel-me.s3.amazonaws.com/${params.username}/twitter_card.png`}
+        content={`https://cancel-me.s3.amazonaws.com/${params.username}/${TWITTER_CARD_NAME}`}
       />
 
       <Page>

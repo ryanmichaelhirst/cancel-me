@@ -1,6 +1,7 @@
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { APIEvent, json } from 'solid-start/api'
 import { BUCKET_NAME, s3 } from '~/lib/s3'
+import { TWITTER_CARD_NAME } from '~/util'
 
 type Action = 'mount' | 'search' | 'upload'
 
@@ -28,12 +29,15 @@ const uploadObject = async ({ blob, key }: { blob: Blob; key: string }) => {
   return await s3.send(command)
 }
 
+// uploads the twitter card to aws s3 bucket
+// dimensions and reference for twitter cards can be found here
+// https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image
 export async function POST({ request }: APIEvent) {
   const formData = await request.formData()
   const blob = formData.get('image') as Blob
   const action = formData.get('action')?.toString() as Action
   const screenname = formData.get('screenname')?.toString()
-  const objectKey = `${screenname}/twitter_card.png`
+  const objectKey = `${screenname}/${TWITTER_CARD_NAME}`
   console.log('the blob', blob.size, blob.name)
   console.log('objectKey', objectKey, action)
 
