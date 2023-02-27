@@ -1,7 +1,7 @@
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { APIEvent, json } from 'solid-start/api'
 import { BUCKET_NAME, s3 } from '~/lib/s3'
-import { TWITTER_CARD_NAME } from '~/util'
+import { TWITTER_CARD_NAME } from '~/util/twitter-card-name'
 
 type Action = 'mount' | 'search' | 'upload'
 

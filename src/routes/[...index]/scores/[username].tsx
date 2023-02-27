@@ -6,7 +6,7 @@ import { Page } from '~/components/page'
 import { ProfanityScoreCard } from '~/components/profanity-score-card'
 import { prisma } from '~/lib/prisma'
 import { ProfanityMetrics } from '~/types'
-import { TWITTER_CARD_NAME } from '~/util'
+import { TWITTER_CARD_NAME } from '~/util/twitter-card-name'
 
 export function routeData({ params }: RouteDataArgs) {
   return createServerData$(
