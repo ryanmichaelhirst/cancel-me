@@ -1,6 +1,7 @@
 import { APIEvent, json } from 'solid-start'
 import { twitterLite } from '~/lib/twitter-lite'
-import { getUserTweetsPaginated } from '../[id]/tweets'
+import { Tweet } from '~/types'
+import { createProfanityScore } from '~/util'
 
 interface UserShowRequest {
   id: number
@@ -12,7 +13,7 @@ interface UserShowRequest {
 
 // statuses/user_timeline docs
 // https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
-export async function GET({ params, request }: APIEvent) {
+export async function POST({ params, request }: APIEvent) {
   try {
     // get user info
     const userShowResp: UserShowRequest = await twitterLite.client.get('users/show', {
@@ -20,11 +21,15 @@ export async function GET({ params, request }: APIEvent) {
     })
     const userId = userShowResp.id_str
 
-    // get tweets
-    const paginate = process.env.NODE_ENV === 'development' ? false : true
-    const tweets = await getUserTweetsPaginated({ userId, paginate })
+    const { tweets }: { tweets: Tweet[] } = await new Response(request.body).json()
+    const metrics = twitterLite.profanityMetrics(tweets)
+    await createProfanityScore({
+      userId,
+      username: params.username,
+      metrics,
+    })
 
-    return json({ tweets, username: userShowResp.screen_name })
+    return json({ metrics })
   } catch (error) {
     return new Response('Unable to search user', { status: 401 })
   }

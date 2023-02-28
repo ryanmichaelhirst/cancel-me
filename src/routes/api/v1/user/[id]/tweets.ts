@@ -4,7 +4,6 @@ import { APIEvent, json } from 'solid-start'
 import url from 'url'
 import { twitterLite } from '~/lib/twitter-lite'
 import { Tweet } from '~/types'
-import { createProfanityScore } from '~/util'
 
 export const getLowestId = (tweets: Tweet[]) => {
   const ids = tweets.map((t) => t.id)
@@ -25,11 +24,11 @@ export const getUserTweets = async ({ userId, maxId }: { userId: string; maxId?:
 
   // determine which tweets contains a profanity
   return tweets.map((tweet) => {
-    const isProfanity = twitterLite.isContainProfanity(tweet.text)
+    const profanity = twitterLite.profanity(tweet.text)
 
     return {
       ...pick(tweet, ['text', 'created_at', 'id', 'id_str']),
-      isProfanity,
+      profanity,
     }
   })
 }
@@ -54,6 +53,7 @@ export const getUserTweetsPaginated = async ({
 
   // fixes this vercel function error
   // [ERROR] [1676162159910] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+  // get most recent 3200 tweets
   if (tweets.length >= 2000 || newMaxId.toString() === 'Infinity' || newMaxId === maxId) {
     return tweets
   }
@@ -85,16 +85,8 @@ export async function GET({ params, request }: APIEvent) {
         : getUserTweetsPaginated
 
     const tweets = await fetchFunc({ userId, paginate: paginateParam })
-    const metrics = twitterLite.profanityMetrics(tweets)
-    // save profanity score to db
-    await createProfanityScore({
-      userId: params.id,
-      // @ts-ignore
-      username,
-      metrics,
-    })
 
-    return json({ tweets, metrics })
+    return json({ tweets })
   } catch (err) {
     return new Response('Unable to get tweets', { status: 401 })
   }

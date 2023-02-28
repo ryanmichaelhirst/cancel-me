@@ -9,7 +9,7 @@ import {
   magnifyingGlass,
   xMark,
 } from 'solid-heroicons/outline'
-import { createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
+import { createMemo, createSignal, For, JSX, JSXElement, onMount, Show } from 'solid-js'
 import { RouteDataArgs, Title, useRouteData, useSearchParams } from 'solid-start'
 import { createServerAction$, createServerData$, redirect } from 'solid-start/server'
 import { FileUpload } from '~/components/file-upload'
@@ -178,13 +178,16 @@ export default function Dashboard() {
           data()?.user.screen_name
         }`,
       )
-      const json = await resp.json()
-      const { tweets, metrics } = json
+      const { tweets }: { tweets: TweetRecord[] } = await resp.json()
       setTweets(tweets)
 
-      if (metrics) {
-        setProfanityMetrics({ metrics, screenname: data()?.user?.screen_name })
-      }
+      const metricsResp: { metrics: ProfanityMetrics } = await (
+        await fetch(`/api/v1/user/${data()?.user.screen_name}/create_profanity_score`, {
+          body: JSON.stringify({ tweets }),
+          method: 'POST',
+        })
+      ).json()
+      setProfanityMetrics({ metrics: metricsResp.metrics, screenname: data()?.user?.screen_name })
 
       setLoadingTweets(false)
     } catch (err) {
@@ -319,10 +322,19 @@ export default function Dashboard() {
     if (!username) return
 
     setLoadingTweets(true)
-    const resp = await (await fetch(`/api/v1/user/${username}/search`)).json()
-
+    const resp: { tweets: TweetRecord[] } = await (
+      await fetch(`/api/v1/user/${username}/search`)
+    ).json()
     setTweets(resp.tweets)
-    setProfanityMetrics({ metrics: resp.metrics, screenname: username })
+
+    const metricsResp: { metrics: ProfanityMetrics } = await (
+      await fetch(`/api/v1/user/${username}/create_profanity_score`, {
+        body: JSON.stringify({ tweets: resp.tweets }),
+        method: 'POST',
+      })
+    ).json()
+    setProfanityMetrics({ metrics: metricsResp.metrics, screenname: username })
+
     setLoadingTweets(false)
     await generateImage('search', username)
   }
@@ -333,15 +345,22 @@ export default function Dashboard() {
   }
 
   const onUpload = async (tweets: HistoricalTweet[]) => {
-    const resp: { tweets: TweetRecord[]; metrics: ProfanityMetrics } = await (
+    const resp: { tweets: TweetRecord[] } = await (
       await fetch(`/api/v1/user/${data()?.user.id_str}/upload`, {
         body: JSON.stringify({ tweets, username: data()?.user?.screen_name }),
         method: 'POST',
       })
     ).json()
-
     setTweets(resp.tweets)
-    setProfanityMetrics({ metrics: resp.metrics, screenname: data()?.user?.screen_name })
+
+    const metricsResp: { metrics: ProfanityMetrics } = await (
+      await fetch(`/api/v1/user/${data()?.user.screen_name}/create_profanity_score`, {
+        body: JSON.stringify({ tweets: resp.tweets }),
+        method: 'POST',
+      })
+    ).json()
+    setProfanityMetrics({ metrics: metricsResp.metrics, screenname: data()?.user?.screen_name })
+
     await generateImage('upload', data()?.user?.screen_name ?? '')
     setShowUploadModal(false)
   }
@@ -351,7 +370,7 @@ export default function Dashboard() {
   const onShareOnTwitter = () => {
     const text = 'Check out my score on cancelme.io!'
     const hashtags = 'CancelMe'
-    const url = `https://cancel-me.io/scores/${data()?.user?.screen_name}`
+    const url = `https://cancelme.io/scores/${data()?.user?.screen_name}`
 
     var tweetUrl =
       'https://twitter.com/intent/tweet?text=' +
@@ -364,13 +383,13 @@ export default function Dashboard() {
     window.open(tweetUrl)
   }
 
-  const filteredTweets = () => {
+  const filteredTweets = createMemo(() => {
     if (selectedTab() === 'All') return tweets()
 
     return tweets()?.filter((t) => {
-      return t.isProfanity
+      return t.profanity
     })
-  }
+  })
 
   return (
     <Page>
@@ -491,7 +510,7 @@ export default function Dashboard() {
         </form>
       </section>
 
-      <section class='rounded-b border border-blue-200 p-4'>
+      <section class='mb-10 rounded-b border border-blue-200 p-4'>
         {loadingTweets() ? (
           <div class='flex flex-col items-center justify-center'>
             <p>Loading tweets...</p>

@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import { auth, Client } from 'twitter-api-sdk'
+import { Profanity } from '~/types'
 import badWords from '~/word-lists/profanities'
 
 dotenv.config()
@@ -22,22 +23,22 @@ export const setAccessToken = (token?: Token) => (accessToken = token)
 class TwitterUserClient {
   public client: Client
   private userId?: string
-  private profanities: string[]
+  private profanities: Profanity[]
 
   constructor() {
     this.client = new Client(authClient)
     this.profanities = badWords
   }
 
-  isContainProfanity(text: string) {
+  profanity(text: string) {
     const words = text
       .toLowerCase()
       // remove all punctuation from text
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
       .split(' ')
 
-    return words.some((word) => {
-      return this.profanities.includes(word)
+    return words.find((word) => {
+      return this.profanities.find((p) => p.word === word)
     })
   }
 
@@ -72,11 +73,9 @@ class TwitterUserClient {
 
     // determine which tweets contains a profanity
     const data = results.map((tweet) => {
-      const isProfanity = this.isContainProfanity(tweet.text)
-
       return {
         ...tweet,
-        isProfanity,
+        profanity: this.profanity(tweet.text),
       }
     })
 

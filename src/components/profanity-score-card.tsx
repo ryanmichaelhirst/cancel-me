@@ -1,68 +1,43 @@
+import { createElementSize } from '@solid-primitives/resize-observer'
 import { A } from '@solidjs/router'
 import classNames from 'classnames'
-import debounce from 'lodash.debounce'
 import { Icon } from 'solid-heroicons'
 import {
-  bars_2,
+  check,
   checkBadge,
   exclamationTriangle,
   faceFrown,
   faceSmile,
   fire,
-  handThumbUp,
-  questionMarkCircle,
   xCircle,
+  xMark,
 } from 'solid-heroicons/outline'
-import { createEffect, createSignal, onCleanup, onMount } from 'solid-js'
+import { createMemo } from 'solid-js'
 import { useRouteData } from 'solid-start'
 import { useDashboardRouteData } from '~/routes/[...index]/dashboard'
 import { ProfanityMetrics } from '~/types'
 
-const ColorBar = (props: { metric: number; total: number; title: string; bgColor: string }) => {
-  const [width, setWidth] = createSignal(100)
+const ColorBar = (props: { width: string; title: string; bgColor: string }) => (
+  <div
+    title={props.title}
+    class={classNames('h-4 rounded hover:cursor-pointer', props.bgColor)}
+    style={{
+      width: props.width,
+    }}
+  />
+)
 
-  const updateWidth = () => {
-    setWidth(window.document.getElementById('color-bar-container')?.clientWidth ?? 100)
-  }
-
-  const debouncedUpdateWidth = debounce(updateWidth, 100)
-
-  onMount(() => {
-    window.addEventListener('resize', debouncedUpdateWidth)
-  })
-
-  onCleanup(() => {
-    window.removeEventListener('resize', debouncedUpdateWidth)
-  })
-
-  createEffect(() => {
-    setWidth(window.document.getElementById('color-bar-container')?.clientWidth ?? 100)
-  })
-
-  const dynamicWidth = () => `${Math.round((props.metric / props.total) * width())}px`
-
-  return (
-    <div
-      title={props.title}
-      class={classNames('h-4 rounded hover:cursor-pointer', props.bgColor)}
-      style={{ width: dynamicWidth() }}
-    />
-  )
-}
-
-const MetricCount = (props: any) => {
-  return (
-    <div>
-      <p class={classNames('text-center text-sm', props.bgColor)}>{props.title}</p>
-      <div class='flex justify-center'>
-        {props.icon && (
-          <Icon path={props.icon} class={classNames('h-6 w-6 text-inherit', props.bgColor)} />
-        )}
-        <p class='ml-2 text-sm'>{props.metric}</p>
-      </div>
+const MetricCount = (props: any) => (
+  <div>
+    <p class={classNames('text-center text-sm', props.bgColor)}>{props.title}</p>
+    <div class='flex justify-center'>
+      {props.icon && (
+        <Icon path={props.icon} class={classNames('h-6 w-6 text-inherit', props.bgColor)} />
+      )}
+      <p class='ml-2 text-sm'>{props.metric}</p>
     </div>
-  )
-}
+  </div>
+)
 
 const MembershipStatus = (props: { isInteractive?: boolean; isPremiumUser?: boolean }) => {
   if (props.isInteractive) return null
@@ -98,21 +73,13 @@ export const ProfanityScoreCard = (props: {
     return data()?.donations.length > 0
   }
 
-  const numProfanities = () =>
-    props.metrics.mild +
-    props.metrics.medium +
-    props.metrics.strong +
-    props.metrics.strongest +
-    props.metrics.unrated
-  const totalTweets = () =>
-    props.metrics.mild +
-    props.metrics.medium +
-    props.metrics.strong +
-    props.metrics.strongest +
-    props.metrics.unrated +
-    props.metrics.safe
+  const numProfanities = createMemo(() => {
+    return (
+      props.metrics.mild + props.metrics.medium + props.metrics.strong + props.metrics.strongest
+    )
+  })
 
-  const score = () => {
+  const cancelMeTitle = () => {
     if (numProfanities() === 0) return 'Devout Mormon'
     if (numProfanities() <= 25) return 'Is trying to get closer to God'
     if (numProfanities() <= 50) return 'Only swears when mom is not around'
@@ -133,6 +100,9 @@ export const ProfanityScoreCard = (props: {
     return 'Obscenity oracle'
   }
 
+  let ref: HTMLDivElement | null
+  const es = createElementSize(() => ref)
+
   return (
     <A href={`/scores/${props.username}`}>
       <div class='mb-10 rounded border bg-white py-2 px-6 shadow-lg' id='profanity-score-card'>
@@ -141,88 +111,69 @@ export const ProfanityScoreCard = (props: {
           <MembershipStatus isInteractive={props.isInteractive} isPremiumUser={isPremiumUser()} />
         </div>
 
-        <section class='flex flex-col items-center overflow-auto md:flex-row'>
-          <p class='mb-2 flex items-center text-2xl text-slate-900 md:mr-4'>{score()}</p>
-          <div class='mb-2 flex flex-auto flex-col'>
-            <div class='flex items-center justify-between'>
-              <MetricCount
-                title='Mild'
-                icon={faceSmile}
-                metric={props.metrics.mild}
-                bgColor='text-yellow-300'
-              />
-              <MetricCount
-                title='Medium'
-                icon={faceFrown}
-                metric={props.metrics.medium}
-                bgColor='text-orange-500'
-              />
-              <MetricCount
-                title='Strong'
-                icon={exclamationTriangle}
-                metric={props.metrics.strong}
-                bgColor='text-red-500'
-              />
-              <MetricCount
-                title='Strongest'
-                icon={fire}
-                metric={props.metrics.strongest}
-                bgColor='text-slate-900'
-              />
-              <MetricCount
-                title='Safe'
-                icon={handThumbUp}
-                metric={props.metrics.safe}
-                bgColor='text-green-600'
-              />
-              <MetricCount
-                title='Uncategorized'
-                icon={questionMarkCircle}
-                metric={props.metrics.unrated}
-                bgColor='text-slate-500'
-              />
-              <Icon path={bars_2} class={classNames('h-6 w-6 text-slate-900')} />
-              <MetricCount title='Total' metric={totalTweets()} bgColor='text-slate-900' />
-            </div>
+        <section class='mt-6 mb-2'>
+          <div class='flex items-center text-green-600'>
+            <Icon path={check} class='h-5 w-5 text-inherit hover:cursor-pointer' />
+            <p class='ml-2 text-xs'>{props.metrics.safe} safe tweets</p>
           </div>
+          <div class='flex items-center text-red-600'>
+            <Icon path={xMark} class='h-5 w-5 text-inherit hover:cursor-pointer' />
+            <p class='ml-2 text-xs'>{numProfanities()} nsfw tweets</p>
+          </div>
+
+          <p class='mr-2 text-2xl text-slate-900'>{cancelMeTitle()}</p>
         </section>
 
-        <div class='my-2 flex space-x-1' id='color-bar-container'>
+        <section class='mb-2 flex flex-col items-center overflow-auto md:flex-row'>
+          <div class='flex w-full flex-wrap items-center justify-between md:flex-nowrap'>
+            <MetricCount
+              title='Mild'
+              icon={faceSmile}
+              metric={props.metrics.mild}
+              bgColor='text-yellow-300'
+            />
+            <MetricCount
+              title='Medium'
+              icon={faceFrown}
+              metric={props.metrics.medium}
+              bgColor='text-orange-500'
+            />
+            <MetricCount
+              title='Strong'
+              icon={exclamationTriangle}
+              metric={props.metrics.strong}
+              bgColor='text-red-400'
+            />
+            <MetricCount
+              title='Strongest'
+              icon={fire}
+              metric={props.metrics.strongest}
+              bgColor='text-slate-900'
+            />
+          </div>
+        </section>
+        <div class='flex space-x-1' ref={(e) => (ref = e)}>
           <ColorBar
-            title='Mild tweets'
-            metric={props.metrics.mild}
-            total={totalTweets()}
+            title={`${props.metrics.mild} Mild tweets`}
+            width={`${Math.round((props.metrics.mild / numProfanities()) * (es.width ?? 0))}px`}
             bgColor='bg-yellow-300'
           />
           <ColorBar
-            title='Medium tweets'
-            metric={props.metrics.medium}
-            total={totalTweets()}
+            title={`${props.metrics.medium} Medium tweets`}
+            width={`${Math.round((props.metrics.medium / numProfanities()) * (es.width ?? 0))}px`}
             bgColor='bg-orange-500'
           />
           <ColorBar
-            title='Strong tweets'
-            metric={props.metrics.strong}
-            total={totalTweets()}
+            title={`${props.metrics.strong} Strong tweets`}
+            width={`${Math.round((props.metrics.strong / numProfanities()) * (es.width ?? 0))}px`}
             bgColor='bg-red-500'
           />
           <ColorBar
-            title='Strongest tweets'
-            metric={props.metrics.strongest}
-            total={totalTweets()}
+            title={`${props.metrics.strongest} Strongest tweets`}
+            width={`${Math.round(
+              (props.metrics.strongest / numProfanities()) * (es.width ?? 0),
+            )}px`}
             bgColor='bg-slate-900'
-          />
-          <ColorBar
-            title='Safe tweets'
-            metric={props.metrics.safe}
-            total={totalTweets()}
-            bgColor='bg-green-600'
-          />
-          <ColorBar
-            title='Uncategorized tweets'
-            metric={props.metrics.unrated}
-            total={totalTweets()}
-            bgColor='bg-slate-300'
           />
         </div>
       </div>

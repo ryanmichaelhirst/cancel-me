@@ -30,13 +30,15 @@ export type HistoricalTweet = {
   }
 }
 
+export type ProfanityLevel = 'mild' | 'medium' | 'strong' | 'strongest'
+export type Profanity = { word: string; level: ProfanityLevel }
 // type TwitterTweet = Exclude<TwitterResponse<usersIdTweets>['data'], undefined>[number]
 export type Tweet = {
   text: string
   created_at: string
   id: number
   id_str: string
-  isProfanity?: boolean
+  profanity?: Profanity
 }
 
 export interface ProfanityMetrics {
@@ -45,7 +47,6 @@ export interface ProfanityMetrics {
   strong: number
   strongest: number
   safe: number
-  unrated: number
 }
 
 export type Product = Stripe.Product & { dollarAmount: string }

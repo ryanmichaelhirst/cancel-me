@@ -2178,6 +2178,34 @@
   resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
   integrity sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
 
+"@solid-primitives/event-listener@^2.2.6":
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/event-listener/-/event-listener-2.2.6.tgz#d5a3ff4fc63bff46586cd1f1ca4ab7798f656d77"
+  integrity sha512-Lb2q888Apv8wqgZ3WvPlt8ic2rEmHx6QT8d3pgi+JRSIRNwAysE6PZDmbwT6/hzzP1TIQG0IRZwh5tomfuqlaQ==
+  dependencies:
+    "@solid-primitives/utils" "^5.0.0"
+
+"@solid-primitives/resize-observer@^2.0.9":
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/resize-observer/-/resize-observer-2.0.9.tgz#c34e0a22467679096a88da0d28dbef031906491f"
+  integrity sha512-N9apMcfL7LSPa/L9g86dhZlIZq3sM1NrFAMgNufzuJWfgHnC/vDQLQpuzc/b2q8O4KpfRs9DTRdFA6t6CK6Plw==
+  dependencies:
+    "@solid-primitives/event-listener" "^2.2.6"
+    "@solid-primitives/rootless" "^1.2.3"
+    "@solid-primitives/utils" "^5.0.0"
+
+"@solid-primitives/rootless@^1.2.3":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/rootless/-/rootless-1.2.4.tgz#82280a5f69635c4302cf1a82d2cdd91d440dd665"
+  integrity sha512-wsxpJzmCTeKt7gM1sDN3aKs5Sb8dmD3xVBdXUA+xZWcO5v/CVR5Gq690YvXvWSK+Thjv8jvDNHI582CDP/gFzQ==
+  dependencies:
+    "@solid-primitives/utils" "^5.0.0"
+
+"@solid-primitives/utils@^5.0.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/utils/-/utils-5.2.0.tgz#12e22b29b5c751810cbedfbb2409c30844feb63e"
+  integrity sha512-9sJSBv0IshaQ6qks9FW9ErKZS9qeAv+uYYrsAAXnu5XtDeifRtMk0k6Smje4XxzpxGH/8P4nwS2kk/9vt6KsBg==
+
 "@solidjs/meta@^0.28.2":
   version "0.28.2"
   resolved "https://registry.yarnpkg.com/@solidjs/meta/-/meta-0.28.2.tgz#384881e96bc38278f950f8af5f5313675e6d0b8c"

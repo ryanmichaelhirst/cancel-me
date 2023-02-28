@@ -1,7 +1,6 @@
 import { APIEvent, json } from 'solid-start'
 import { twitterLite } from '~/lib/twitter-lite'
 import { HistoricalTweet } from '~/types'
-import { createProfanityScore } from '~/util'
 
 export async function POST({ params, request }: APIEvent) {
   try {
@@ -30,19 +29,11 @@ export async function POST({ params, request }: APIEvent) {
         created_at: tweet.created_at,
         id: parseInt(tweet.id),
         id_str: tweet.id_str,
-        isProfanity: tweet.full_text ? twitterLite.isContainProfanity(tweet.full_text) : undefined,
+        profanity: tweet.full_text ? twitterLite.profanity(tweet.full_text) : undefined,
       }
     })
-    const metrics = twitterLite.profanityMetrics(tweets)
 
-    // save profanity score to db
-    await createProfanityScore({
-      userId: params.id,
-      username: body.username,
-      metrics,
-    })
-
-    return json({ tweets, metrics })
+    return json({ tweets })
   } catch (error) {
     console.log(error)
 

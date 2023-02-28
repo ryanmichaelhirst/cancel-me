@@ -5,20 +5,12 @@
 // https://github.com/draftbit/twitter-lite
 
 import Twitter from 'twitter-lite'
-import { ProfanityMetrics, Tweet } from '~/types'
-import mediumWords from '~/word-lists/medium'
-import mildWords from '~/word-lists/mild'
+import { Profanity, ProfanityMetrics, Tweet } from '~/types'
 import badWords from '~/word-lists/profanities'
-import strongWords from '~/word-lists/strong'
-import strongestWords from '~/word-lists/strongest'
 
 class TwitterLite {
   public client: Twitter
-  private profanities: string[]
-  private mildWords: string[]
-  private mediumWords: string[]
-  private strongWords: string[]
-  private strongestWords: string[]
+  private profanities: Profanity[]
 
   constructor() {
     this.client = new Twitter({
@@ -26,10 +18,6 @@ class TwitterLite {
       consumer_secret: process.env.API_SECRET as string,
     })
     this.profanities = badWords
-    this.mildWords = mildWords
-    this.mediumWords = mediumWords
-    this.strongWords = strongWords
-    this.strongestWords = strongestWords
   }
 
   normalizeText(text: string) {
@@ -42,43 +30,11 @@ class TwitterLite {
     )
   }
 
-  isContainMild(text: string) {
+  profanity(text: string) {
     const words = this.normalizeText(text)
 
-    return words.some((word) => {
-      return this.mildWords.includes(word)
-    })
-  }
-
-  isContainMedium(text: string) {
-    const words = this.normalizeText(text)
-
-    return words.some((word) => {
-      return this.mediumWords.includes(word)
-    })
-  }
-
-  isContainStrong(text: string) {
-    const words = this.normalizeText(text)
-
-    return words.some((word) => {
-      return this.strongWords.includes(word)
-    })
-  }
-
-  isContainStrongest(text: string) {
-    const words = this.normalizeText(text)
-
-    return words.some((word) => {
-      return this.strongestWords.includes(word)
-    })
-  }
-
-  isContainProfanity(text: string) {
-    const words = this.normalizeText(text)
-
-    return words.some((word) => {
-      return this.profanities.includes(word)
+    return this.profanities.find((p) => {
+      return words.find((word) => word === p.word)
     })
   }
 
@@ -94,28 +50,27 @@ class TwitterLite {
   profanityMetrics(tweets: Tweet[]) {
     return tweets.reduce<ProfanityMetrics>(
       (acc, cur) => {
-        const { text, isProfanity } = cur
-        if (!isProfanity) {
+        const { profanity } = cur
+        if (!profanity) {
           acc.safe++
 
           return acc
         }
 
-        if (this.isContainMild(text)) {
+        const { level } = profanity
+        if (level === 'mild') {
           acc.mild++
-        } else if (this.isContainMedium(text)) {
+        } else if (level === 'medium') {
           acc.medium++
-        } else if (this.isContainStrong(text)) {
+        } else if (level === 'strong') {
           acc.strong++
-        } else if (this.isContainStrongest(text)) {
+        } else if (level === 'strongest') {
           acc.strongest++
-        } else {
-          acc.unrated++
         }
 
         return acc
       },
-      { mild: 0, medium: 0, strong: 0, strongest: 0, safe: 0, unrated: 0 },
+      { mild: 0, medium: 0, strong: 0, strongest: 0, safe: 0 },
     )
   }
 }
