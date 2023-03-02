@@ -105,14 +105,18 @@ export const ProfanityScoreCard = (props: {
 
   return (
     <A href={`/scores/${props.username}`}>
-      <div class='mb-10 rounded border bg-white py-2 px-6 shadow-lg' id='profanity-score-card'>
+      <div
+        class='mb-10 rounded border bg-white px-6 pt-2 pb-[40px] shadow-lg'
+        id='profanity-score-card'
+      >
         <div class='flex items-center space-x-3'>
           <p class='text-sm text-slate-500'>{props.username}</p>
           <MembershipStatus isInteractive={props.isInteractive} isPremiumUser={isPremiumUser()} />
         </div>
 
-        <section class='mt-6 mb-2'>
-          <div class='flex items-center text-green-600'>
+        <section class='my-2 flex'>
+          <p class='mr-4 text-2xl text-slate-900'>{cancelMeTitle()}</p>
+          <div class='mr-4 flex items-center text-green-600'>
             <Icon path={check} class='h-5 w-5 text-inherit hover:cursor-pointer' />
             <p class='ml-2 text-xs'>{props.metrics.safe} safe tweets</p>
           </div>
@@ -120,8 +124,6 @@ export const ProfanityScoreCard = (props: {
             <Icon path={xMark} class='h-5 w-5 text-inherit hover:cursor-pointer' />
             <p class='ml-2 text-xs'>{numProfanities()} nsfw tweets</p>
           </div>
-
-          <p class='mr-2 text-2xl text-slate-900'>{cancelMeTitle()}</p>
         </section>
 
         <section class='mb-2 flex flex-col items-center overflow-auto md:flex-row'>
