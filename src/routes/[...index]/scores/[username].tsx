@@ -15,6 +15,7 @@ export function routeData({ params }: RouteDataArgs) {
         where: {
           username,
         },
+        distinct: ['payload'],
         orderBy: {
           createdAt: 'desc',
         },
