@@ -38,6 +38,7 @@ export default function Users() {
 
       {/* validated with Twitter Card Validator: https://cards-dev.twitter.com/validator */}
       {/* testable @ https://dev.cancelme.io/scores/__rmbh */}
+      {/* you can troubleshoot new card images by following these instructions: https://developer.twitter.com/en/docs/twitter-for-websites/cards/guides/troubleshooting-cards#refreshing*/}
       <Meta name='twitter:card' content='summary_large_image' />
       <Meta name='twitter:site' content='@CancelMe' />
       <Meta name='twitter:title' content={`CancelMe - ${params.username} Score`} />

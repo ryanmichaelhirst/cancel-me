@@ -154,7 +154,8 @@ export default function Dashboard() {
       return generateImage(action, screenname)
     }
 
-    const dataUrl = await toPng(element, { width: 1200, height: 675 })
+    // , { width: 1200, height: 675 }
+    const dataUrl = await toPng(element)
     const blob = dataUrlToBlob(dataUrl)
     if (!blob) return
 
