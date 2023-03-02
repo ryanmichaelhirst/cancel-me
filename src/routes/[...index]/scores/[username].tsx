@@ -34,7 +34,7 @@ export default function Users() {
         name='description'
         content={`View ${params.username} score card for their cancel worthy tweets`}
       />
-      <Meta name='robots' content='index,follow,max-image-preview:large' />
+      <Meta name='robots' content='index,follow,max-image-preview:large,noarchive' />
 
       {/* validated with Twitter Card Validator: https://cards-dev.twitter.com/validator */}
       {/* testable @ https://dev.cancelme.io/scores/__rmbh */}
