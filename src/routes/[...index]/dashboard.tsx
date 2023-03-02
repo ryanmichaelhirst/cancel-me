@@ -326,7 +326,7 @@ export default function Dashboard() {
     const resp: { tweets: TweetRecord[] } = await (
       await fetch(`/api/v1/user/${username}/search`)
     ).json()
-    setTweets(resp.tweets)
+    // setTweets(resp.tweets)
 
     const metricsResp: { metrics: ProfanityMetrics } = await (
       await fetch(`/api/v1/user/${username}/create_profanity_score`, {
