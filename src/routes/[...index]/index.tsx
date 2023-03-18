@@ -28,14 +28,14 @@ export default function Index() {
   return (
     <Page>
       <Title>CancelMe - Home</Title>
-      <h1 class='mt-10 text-5xl text-blue-800'>Time to cancel yourself</h1>
+      <h1 class='mt-10 text-5xl text-blue-800'>Cancel Me</h1>
 
       <section class='mt-6'>
         <p class='mb-4 text-lg text-slate-900'>
-          Cancel Me is an app designed to scrub through all of your tweets and flag the ones that
-          are obscene or NSFW. The service is 100% free and gives you an easy way to delete your
-          tweets in bulk. Our platform is perfect for those looking to clean up their profile or
-          simply start from scratch.
+          It's time to cancel yourself. Cancel Me is an app designed to scrub through all of your
+          tweets and flag the ones that are obscene or NSFW. The service is 100% free and gives you
+          an easy way to delete your tweets in bulk. Our platform is perfect for those looking to
+          clean up their profile or simply start from scratch.
         </p>
         <button
           onClick={onClick}
