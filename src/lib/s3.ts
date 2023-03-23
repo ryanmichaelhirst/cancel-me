@@ -1,7 +1,7 @@
 import { GetObjectCommand, GetObjectCommandInput, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl as awsRequestPresigner } from '@aws-sdk/s3-request-presigner'
 
-export const BUCKET_NAME = 'cancel-me'
+export const BUCKET_NAME = process.env.AWS_BUCKET_NAME ?? ''
 
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID ?? ''
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY ?? ''
