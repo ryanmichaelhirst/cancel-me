@@ -19,7 +19,13 @@ export interface AccountVerifyCredentialsResponse {
   friends_count: number
 }
 
-export type User = Pick<AccountVerifyCredentialsResponse, 'id' | 'id_str' | 'email' | 'screen_name'>
+export type User = Pick<
+  AccountVerifyCredentialsResponse,
+  'id' | 'id_str' | 'email' | 'screen_name'
+> & {
+  oauth_token: string
+  oauth_token_secret: string
+}
 
 export type HistoricalTweet = {
   tweet: {

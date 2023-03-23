@@ -25,29 +25,31 @@ export const Tweet = (props: {
       </label>
     </td>
     <td class='w-10'>{props.idx}</td>
-    <td class='min-w-52 break-words'>{props.tweet.text}</td>
+    <td class='min-w-52 max-w-[75%] truncate'>{props.tweet.text}</td>
     <td class='w-32 break-words'>
       {props.tweet.created_at
         ? format(new Date(props.tweet.created_at), 'MMM dd, yyyy, HH:mm aa')
         : ''}
     </td>
-    <td class='flex'>
-      <button
-        id={props.tweet.id_str}
-        title='Delete tweet'
-        onClick={props.onDelete}
-        class='mr-2 text-blue-500 hover:text-blue-800'
-      >
-        <Icon path={trash} class='h-6 w-6 text-inherit' />
-      </button>
-      <button
-        title='View tweet'
-        // https://developer.twitter.com/en/blog/community/2020/getting-to-the-canonical-url-for-a-tweet
-        onClick={() => window.open(`https://twitter.com/twitter/status/${props.tweet.id_str}`)}
-        class='text-blue-500 hover:text-blue-800'
-      >
-        <Icon path={link} class='h-6 w-6 text-inherit' />
-      </button>
+    <td>
+      <div class='flex'>
+        <button
+          id={props.tweet.id_str}
+          title='Delete tweet'
+          onClick={props.onDelete}
+          class='mr-2 text-blue-500 hover:text-blue-800'
+        >
+          <Icon path={trash} class='h-6 w-6 text-inherit' />
+        </button>
+        <button
+          title='View tweet'
+          // https://developer.twitter.com/en/blog/community/2020/getting-to-the-canonical-url-for-a-tweet
+          onClick={() => window.open(`https://twitter.com/twitter/status/${props.tweet.id_str}`)}
+          class='text-blue-500 hover:text-blue-800'
+        >
+          <Icon path={link} class='h-6 w-6 text-inherit' />
+        </button>
+      </div>
     </td>
   </tr>
 )

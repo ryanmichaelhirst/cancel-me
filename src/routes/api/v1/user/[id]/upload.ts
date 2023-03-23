@@ -1,5 +1,5 @@
 import { APIEvent, json } from 'solid-start'
-import { twitterLite } from '~/lib/twitter-lite'
+import { profanityParser } from '~/lib/profanity-parser'
 import { HistoricalTweet } from '~/types'
 
 export async function POST({ params, request }: APIEvent) {
@@ -29,7 +29,7 @@ export async function POST({ params, request }: APIEvent) {
         created_at: tweet.created_at,
         id: parseInt(tweet.id),
         id_str: tweet.id_str,
-        profanity: tweet.full_text ? twitterLite.profanity(tweet.full_text) : undefined,
+        profanity: tweet.full_text ? profanityParser.profanity(tweet.full_text) : undefined,
       }
     })
 

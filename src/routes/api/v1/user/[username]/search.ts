@@ -1,5 +1,6 @@
 import { APIEvent, json } from 'solid-start'
-import { twitterLite } from '~/lib/twitter-lite'
+import Twitter from 'twitter-lite'
+import { getUser } from '~/lib/session'
 import { getUserTweetsPaginated } from '../[id]/tweets'
 
 interface UserShowRequest {
@@ -15,14 +16,22 @@ interface UserShowRequest {
 export async function GET({ params, request }: APIEvent) {
   try {
     // get user info
-    const userShowResp: UserShowRequest = await twitterLite.client.get('users/show', {
+    const user = await getUser(request)
+    const client = new Twitter({
+      consumer_key: process.env.API_KEY as string,
+      consumer_secret: process.env.API_SECRET as string,
+      access_token_key: user?.oauth_token,
+      access_token_secret: user?.oauth_token_secret,
+    })
+
+    const userShowResp: UserShowRequest = await client.get('users/show', {
       screen_name: params.username,
     })
     const userId = userShowResp.id_str
 
     // get tweets
     const paginate = process.env.NODE_ENV === 'development' ? false : true
-    const tweets = await getUserTweetsPaginated({ userId, paginate })
+    const tweets = await getUserTweetsPaginated({ userId, paginate, client })
 
     return json({ tweets, username: userShowResp.screen_name })
   } catch (error) {

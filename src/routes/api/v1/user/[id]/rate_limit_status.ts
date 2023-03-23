@@ -1,9 +1,17 @@
 import { APIEvent, json } from 'solid-start'
-import { twitterLite } from '~/lib/twitter-lite'
+import Twitter from 'twitter-lite'
+import { getUser } from '~/lib/session'
 
 export async function GET({ params, request }: APIEvent) {
   try {
-    const resp = await twitterLite.client.get('application/rate_limit_status')
+    const user = await getUser(request)
+    const client = new Twitter({
+      consumer_key: process.env.API_KEY as string,
+      consumer_secret: process.env.API_SECRET as string,
+      access_token_key: user?.oauth_token,
+      access_token_secret: user?.oauth_token_secret,
+    })
+    const resp = await client.get('application/rate_limit_status')
 
     return json(resp)
   } catch (error) {

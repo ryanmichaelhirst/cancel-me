@@ -1,11 +1,19 @@
 import { APIEvent, json } from 'solid-start'
-import { twitterLite } from '~/lib/twitter-lite'
+import Twitter from 'twitter-lite'
+import { getUser } from '~/lib/session'
 
 export async function DELETE(event: APIEvent) {
-  const { params } = event
+  const { params, request } = event
+  const user = await getUser(request)
+  const client = new Twitter({
+    consumer_key: process.env.API_KEY as string,
+    consumer_secret: process.env.API_SECRET as string,
+    access_token_key: user?.oauth_token,
+    access_token_secret: user?.oauth_token_secret,
+  })
 
   try {
-    const resp = await twitterLite.client.post('statuses/destroy', {
+    const resp = await client.post('statuses/destroy', {
       id: params.id,
     })
 

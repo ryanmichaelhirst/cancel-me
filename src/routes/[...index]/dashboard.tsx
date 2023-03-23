@@ -546,8 +546,8 @@ export default function Dashboard() {
               </div>
             </div>
             <hr class='my-2' />
-            <div role='tabpanel' class='overflow-auto'>
-              <table>
+            <div role='tabpanel' class='max-w-full overflow-auto'>
+              <table class='w-full' style='table-layout: fixed;'>
                 <thead>
                   <tr class='text-left text-slate-800'>
                     <th class='w-10'>

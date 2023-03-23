@@ -1,22 +1,10 @@
-// Implementation for oauth can be found here:
-// https://github.com/draftbit/twitter-lite/blob/00052e6b920e642a401f37b66972fd7b8553fa00/twitter.js#L152
-
-// Library to support V1 of twitter api
-// https://github.com/draftbit/twitter-lite
-
-import Twitter from 'twitter-lite'
+import badWords from '~/lib/bad-words'
 import { Profanity, ProfanityMetrics, Tweet } from '~/types'
-import badWords from '~/word-lists/profanities'
 
-class TwitterLite {
-  public client: Twitter
+class ProfanityParser {
   private profanities: Profanity[]
 
   constructor() {
-    this.client = new Twitter({
-      consumer_key: process.env.API_KEY as string,
-      consumer_secret: process.env.API_SECRET as string,
-    })
     this.profanities = badWords
   }
 
@@ -35,15 +23,6 @@ class TwitterLite {
 
     return this.profanities.find((p) => {
       return words.find((word) => word === p.word)
-    })
-  }
-
-  setClient(accessToken: string, accessTokenSecret: string) {
-    this.client = new Twitter({
-      consumer_key: process.env.API_KEY as string,
-      consumer_secret: process.env.API_SECRET as string,
-      access_token_key: accessToken,
-      access_token_secret: accessTokenSecret,
     })
   }
 
@@ -75,4 +54,4 @@ class TwitterLite {
   }
 }
 
-export const twitterLite = new TwitterLite()
+export const profanityParser = new ProfanityParser()
